@@ -42,3 +42,8 @@
 
 ---
 中信房屋 冠軍商仲 劉展麟　LINE @key1
+
+## 設計與製作
+- 製作人：劉展麟（中信房屋 冠軍商仲，LINE @key1）
+- 視覺：中信房屋 冠軍商仲 CHAMPION CIS（Champion Navy #10243D、Champagne Gold #B89964、Ivory #F4F0E9、Luxury Black #171717、Champion Orange #F36B21、Warm Gray #9B948A）。「冠軍商仲 CHAMPION」為文字標準字；中信房屋標誌使用既有原始檔，未重繪。
+- 英文字體：DM Serif Display（SIL Open Font License 1.1，見 `assets/FONTS-LICENSE.txt`）；中文使用系統黑體，不載入中文網路字型以維持載入速度。

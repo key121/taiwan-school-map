@@ -89,7 +89,7 @@ function initMap(){
   villLayer=L.geoJSON(VG,{renderer:svg,style:villStyle,onEachFeature:(f,l)=>{l.on('click',e=>{L.popup({maxWidth:320}).setLatLng(e.latlng).setContent(villPopup(D.villages[f.properties.i])).openOn(map);});
      l.on('mouseover',()=>l.setStyle({weight:3}));l.on('mouseout',()=>villLayer.resetStyle(l));}}).addTo(map);
   villLayer.setStyle(villStyle);
-  L.geoJSON(DG,{interactive:false,style:{color:'#0f2a44',weight:2.4,opacity:.75,fill:false}}).addTo(map);
+  L.geoJSON(DG,{interactive:false,style:{color:'#10243D',weight:2.4,opacity:.75,fill:false}}).addTo(map);
   unionLayer=L.layerGroup().addTo(map); hiLayer=L.layerGroup().addTo(map);
   markerLayer=L.layerGroup().addTo(map); pinLayer=L.layerGroup().addTo(map);
   dotLayer=L.layerGroup(); labelLayer=L.layerGroup();
@@ -158,7 +158,7 @@ function selectSchool(lvl,name,fly=true){
   if(lvl!==level){level=lvl;setLevel(lvl);}
   const s=schoolBy[lvl][name]; if(!s) return;
   selSchool=s; hiLayer.clearLayers();
-  const g=L.geoJSON(s.union,{interactive:false,style:{color:'#c9a227',weight:4,opacity:1,fill:false}}).addTo(hiLayer);
+  const g=L.geoJSON(s.union,{interactive:false,style:{color:'#B89964',weight:4,opacity:1,fill:false}}).addTo(hiLayer);
   villLayer.setStyle(villStyle); renderSchoolList();
   if(fly) map.fitBounds(g.getBounds(),{padding:[30,30],maxZoom:16});
   map.closePopup(); updateHash();
@@ -255,7 +255,7 @@ function renderResult(R,move=true){
   if(R.warn) h+='<div class="note">'+R.warn+'</div>';
   for(const lvl of ['elem','junior']){
     const res=resolveLevel(v,lvl,R.lin);
-    h+='<div class="lvl"'+(lvl===level?' style="border-color:#c9a227"':'')+'><div class="t">'+LV[lvl]+'學區 '+statusBadge(v[lvl].status)+'</div>';
+    h+='<div class="lvl"'+(lvl===level?' style="border-color:#B89964"':'')+'><div class="t">'+LV[lvl]+'學區 '+statusBadge(v[lvl].status)+'</div>';
     if(res.exact){
       const g=res.groups[0];
       h+='<div class="sch">'+g.schools.map(n=>{const s=schoolBy[lvl][n];const dm=(s&&s.lat!=null&&R.lat!=null)?' <span class="dist walk" data-s="'+lvl+'|'+esc(n)+'">直線約'+fmtDist(hav(R.lon,R.lat,s.lon,s.lat))+'・步行計算中…</span>':'';
@@ -321,18 +321,18 @@ function walkHtml(R,s,w){
 async function makeCard(R){
   const v=D.villages[R.vi], W=1080, pad=64; const cv=document.createElement('canvas'); cv.width=W; cv.height=1350; const c=cv.getContext('2d');
   const F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
-  c.fillStyle='#f6f4ee'; c.fillRect(0,0,W,1350); c.fillStyle='#14304f'; c.fillRect(0,0,W,190);
-  c.fillStyle='#c9a227'; c.fillRect(0,190,W,8);
+  c.fillStyle='#f6f4ee'; c.fillRect(0,0,W,1350); c.fillStyle='#10243D'; c.fillRect(0,0,W,190);
+  c.fillStyle='#B89964'; c.fillRect(0,190,W,8);
   c.fillStyle='#fff'; c.font='bold 54px '+F; c.fillText('基隆市學區查詢結果',pad,95); c.font='30px '+F; c.fillStyle='#e8dcb0'; c.fillText('115、116學年度國民中小學學區劃分表',pad,150);
   const wrap=(t,x,y,max,lh)=>{let line='';for(const ch of t){if(c.measureText(line+ch).width>max){c.fillText(line,x,y);y+=lh;line=ch;}else line+=ch;}if(line){c.fillText(line,x,y);y+=lh;}return y;};
-  let y=270; c.fillStyle='#14304f'; c.font='bold 44px '+F; y=wrap(R.title||(v.dist+v.vill),pad,y,W-2*pad,58);
+  let y=270; c.fillStyle='#10243D'; c.font='bold 44px '+F; y=wrap(R.title||(v.dist+v.vill),pad,y,W-2*pad,58);
   c.font='34px '+F; c.fillStyle='#555'; c.fillText(v.dist+' '+v.vill+(R.lin!=null?' 第'+R.lin+'鄰':'（未指定鄰）'),pad,y+6); y+=70;
   for(const lvl of ['elem','junior']){
     const res=resolveLevel(v,lvl,R.lin);
     c.fillStyle='#fff'; c.strokeStyle='#d8d2c2'; c.lineWidth=3; const top=y; const h0=230;
     c.fillRect(pad,top,W-2*pad,h0); c.strokeRect(pad,top,W-2*pad,h0);
-    c.fillStyle='#c9a227'; c.fillRect(pad,top,12,h0);
-    c.fillStyle='#14304f'; c.font='bold 36px '+F; c.fillText(LV[lvl]+'學區',pad+40,top+58);
+    c.fillStyle='#B89964'; c.fillRect(pad,top,12,h0);
+    c.fillStyle='#10243D'; c.font='bold 36px '+F; c.fillText(LV[lvl]+'學區',pad+40,top+58);
     c.font='bold 50px '+F; c.fillStyle='#111';
     let yy=top+130;
     if(res.exact){ yy=wrap(res.groups[0].schools.map(plain).join('／'),pad+40,yy,W-2*pad-80,60);
@@ -345,7 +345,7 @@ async function makeCard(R){
   }
   c.font='26px '+F; c.fillStyle='#666';
   y=wrap('※ 學區依戶籍認定，並有設籍期限、總量管制等規定，實際以學校／基隆市政府教育處公告為準。資料：教育處116學年度學區劃分表（116年8月19日修正）、內政部村里界、基隆市門牌資料（'+D.meta.door_src.replace(/^.*\(|\).*$/g,'')+'）。',pad,y+10,W-2*pad,38);
-  const H=Math.min(1350,Math.max(900,y+40+110)); c.fillStyle='#14304f'; c.fillRect(0,H-110,W,110); c.fillStyle='#e8dcb0'; c.font='bold 34px '+F; c.fillText('中信房屋 冠軍商仲 劉展麟　LINE @key1',pad,H-45);
+  const H=Math.min(1350,Math.max(900,y+40+110)); c.fillStyle='#10243D'; c.fillRect(0,H-110,W,110); c.fillStyle='#e8dcb0'; c.font='bold 34px '+F; c.fillText('中信房屋 冠軍商仲 劉展麟　LINE @key1',pad,H-45);
   const out=document.createElement('canvas'); out.width=W; out.height=H; out.getContext('2d').drawImage(cv,0,0);
   out.toBlob(async b=>{
     const name='學區-'+v.dist+v.vill+(R.lin!=null?R.lin+'鄰':'')+'.png'; const file=new File([b],name,{type:'image/png'});
@@ -440,7 +440,7 @@ function renderFooter(){
    '・學校：<a href="'+m.moe_url+'" target="_blank" rel="noopener">'+esc(m.moe_src)+'</a><br>'+
    '・建置時間：'+esc(m.built)+'（臺北時間）<br><br>'+
    '<b>免責聲明</b>：學區以戶籍認定，並有設籍期限、總量管制、實驗教育等規定，本站僅為查詢輔助，<b>實際學區請以學校或基隆市政府教育處公告為準</b>（國民教育科 02-24301505#205）。斜線區域為「依鄰分屬」或「表列多校」，未自行繪製鄰界。'+
-   '<div class="brand">中信房屋 冠軍商仲 劉展麟 · LINE @key1</div>';
+   '<div class="brand">中信房屋 冠軍商仲 劉展麟 · LINE @key1<br><b>製作人：劉展麟</b>　冠軍商仲房屋有限公司 ／ 經紀人：蘇郁棠（91）北縣字第723號</div>';
 }
 function about(){
   const m=D.meta, st=l=>{const c={single:0,split:0,shared:0};D.villages.forEach(v=>c[v[l].status]++);return c;}, e=st('elem'), j=st('junior');

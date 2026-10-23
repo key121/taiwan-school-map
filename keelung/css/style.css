@@ -1,7 +1,7 @@
-:root{--navy:#0f2a44;--navy2:#173b5f;--gold:#c9a227;--bg:#f4f6f9;--card:#fff;--ink:#1d2733;--mute:#66758a;--line:#e2e7ee;--ok:#1b7f4c;--warn:#b25e00;--bad:#b3261e;--r:12px}
+:root{--navy:#10243D;--navy2:#183453;--gold:#B89964;--bg:#F4F0E9;--card:#fff;--ink:#171717;--mute:#6B655C;--line:#E2DACB;--ok:#1b7f4c;--warn:#b25e00;--bad:#b3261e;--r:12px}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);font-size:15px;line-height:1.55}
-a{color:#1a5fb4}
+a{color:#10243D}
 header.top{height:56px;display:flex;align-items:center;gap:12px;padding:0 16px;background:linear-gradient(90deg,var(--navy),var(--navy2));color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18);position:relative;z-index:1001}
 header.top .logo{width:34px;height:34px;border-radius:9px;background:var(--gold);display:grid;place-items:center;font-weight:800;color:var(--navy);font-size:17px;flex:none}
 header.top h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.5px;white-space:nowrap}
@@ -97,7 +97,27 @@ footer.about .brand{margin-top:10px;padding-top:8px;border-top:1px dashed var(--
 }
 .cands{display:flex;flex-direction:column;gap:6px;margin-top:8px}.cands .btn{text-align:left}
 .walk b{color:#14304f}
-@media print{header.top,.leaflet-control-container,#map,.panel>.card:not(.result),.acts,#resLin{display:none!important}.app{display:block!important;height:auto!important}.panel{width:auto!important;max-height:none!important;overflow:visible!important}.result{border:1px solid #999;box-shadow:none}.result:after{content:"中信房屋 冠軍商仲 劉展麟 LINE @key1";display:block;margin-top:12px;font-size:12px;color:#555}}
+@media print{header.top,.leaflet-control-container,#map,.panel>.card:not(.result),.acts,#resLin{display:none!important}.app{display:block!important;height:auto!important}.panel{width:auto!important;max-height:none!important;overflow:visible!important}.result{border:1px solid #999;box-shadow:none}.result:after{content:"中信房屋 冠軍商仲 劉展麟 LINE @key1　製作人：劉展麟";display:block;margin-top:12px;font-size:12px;color:#555}}
 .leaflet-control-layers-toggle{background-image:none!important;width:auto!important;height:auto!important;padding:6px 10px;font-size:13px;font-weight:700;color:#14304f;text-decoration:none}
 .leaflet-control-layers-toggle:after{content:"底圖／圖層"}
 .leaflet-touch .leaflet-control-layers-toggle{width:auto!important;height:auto!important}
+
+/* CHAMPION 冠軍商仲 CIS layer */
+@font-face{font-family:"DM Serif Display";src:url(../../assets/dmserif-latin.woff2) format("woff2");font-display:swap}
+header.top{background:#10243D;border-bottom:2px solid #B89964;box-shadow:0 2px 10px rgba(16,36,61,.25)}
+header.top .wm{display:inline-flex;flex-direction:column;line-height:1;text-decoration:none;color:#fff;flex:none}
+header.top .wm-zh{font-size:17px;font-weight:900;letter-spacing:.08em}
+header.top .wm-en{font-family:"DM Serif Display",Georgia,serif;font-size:9.5px;letter-spacing:.42em;margin-top:4px;background:linear-gradient(100deg,#6B4A1E,#B8893A 28%,#F3DFA8 52%,#B8893A 74%,#A87A2E);-webkit-background-clip:text;background-clip:text;color:transparent}
+header.top .wm-sep{width:1px;height:26px;background:rgba(184,153,100,.55);flex:none}
+header.top .ttl{min-width:0}
+header.top .credit-top{font-size:12.5px;font-weight:700;color:#F3DFA8;letter-spacing:.06em;white-space:nowrap;border-bottom:1px solid #B89964;padding-bottom:1px}
+header.top .cth{height:18px;width:auto;flex:none}
+header.top .navall{color:#fff;text-decoration:none;font-size:13px;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:5px 11px;white-space:nowrap}
+header.top button.about{border-radius:999px;border-color:#B89964}
+header.top .navall:hover,header.top button.about:hover{background:rgba(255,255,255,.08)}
+.btn{border-radius:10px}
+footer.about .brand{color:#6B655C}footer.about .brand b{color:#10243D}
+body{background-image:linear-gradient(rgba(16,36,61,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(16,36,61,.028) 1px,transparent 1px);background-size:28px 28px}
+@media (max-width:1180px){header.top .cth,header.top .navall{display:none}}
+@media (max-width:820px){header.top .wm-sep{display:none}header.top .wm-zh{font-size:15px}header.top h1{font-size:15px}header.top .credit-top{font-size:11px}header.top{gap:8px}}
+@media (max-width:420px){header.top{padding:0 8px;gap:7px}header.top .wm-zh{font-size:13.5px}header.top .wm-en{font-size:7.5px;letter-spacing:.3em}header.top h1{font-size:14px}header.top button.about{padding:4px 8px;font-size:12px}}

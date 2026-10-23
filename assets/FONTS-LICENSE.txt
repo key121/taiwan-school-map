@@ -1,0 +1,7 @@
+dmserif-latin.woff2 / dmserif-latin-italic.woff2
+= DM Serif Display (Regular / Italic), subset to Basic Latin for English accent type.
+Copyright 2014 - 2017 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. Copyright 2019 Google LLC.
+This Font Software is licensed under the SIL Open Font License, Version 1.1 (http://scripts.sil.org/OFL).
+
+cth-lockup-white.svg / cth-lockup-navy.svg
+= 中信房屋 horizontal logo lockup, traced (no redrawing) from the official logo file; trademark of 中信房屋. Used unmodified.
