@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>全臺國中小學區地圖（官方資料逐縣市收錄）</title>
+<meta name="description" content="全臺22縣市國中小學區查詢：已收錄縣市依官方學區表逐里逐鄰比對，未收錄縣市明確標示並附官方連結。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2313294b'/%3E%3Cpath d='M16 6l10 5-10 5-10-5z' fill='%23c9a227'/%3E%3Cpath d='M10 14v6c3 3 9 3 12 0v-6' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div><h1>全臺國中小學區地圖</h1>
+    <div class="sub">已收錄縣市依官方學區表逐里、逐鄰比對；未收錄縣市只顯示「附近學校，非官方學區」並附官方連結</div></div>
+    <nav><a href="coverage.html">收錄狀態總覽</a><a href="keelung/index.html">基隆專版（門牌精確比對）</a></nav>
+  </div>
+</header>
+<main>
+  <section id="panel">
+    <div class="card">
+      <label class="lab" for="county">縣市</label>
+      <select id="county"></select>
+      <div id="covBadge" class="cov"></div>
+    </div>
+    <div class="card">
+      <form id="qform" autocomplete="off">
+        <label class="lab" for="q">查地址或里鄰</label>
+        <div class="row"><input id="q" type="search" placeholder="例：臺北市大安區新生南路三段86號，或「大安區龍淵里5鄰」" enterkeyhint="search"><button class="btn" type="submit">查詢</button></div>
+      </form>
+      <details id="dd" open><summary>或依 鄉鎮市區 → 村里 → 鄰 選擇（最準確）</summary>
+        <div class="row3"><select id="selT"><option value="">鄉鎮市區</option></select><select id="selV"><option value="">村里</option></select><select id="selL"><option value="">鄰</option></select></div>
+        <div class="small">鄰別以戶口名簿或門牌所載為準；鄰數來源：內政部戶政司村里鄰戶數（115年7月）。</div>
+      </details>
+    </div>
+    <div id="result" class="card hidden" aria-live="polite"></div>
+    <div class="card" id="schoolCard">
+      <label class="lab" for="selS">依學校查學區範圍</label>
+      <select id="selS"><option value="">選擇學校</option></select>
+      <div class="small" id="schoolNote"></div>
+    </div>
+    <div class="brand">中信房屋 冠軍商仲 劉展麟　LINE @key1</div>
+  </section>
+  <section id="mapwrap">
+    <div id="map" aria-label="學區地圖"></div>
+    <div class="lvtoggle" role="group" aria-label="學區層級"><button data-lv="e" class="on">國小學區</button><button data-lv="j">國中學區</button></div>
+    <div id="legend"></div>
+    <div id="loading" class="hidden">載入中…</div>
+  </section>
+</main>
+<footer>
+  <div><b>資料來源</b>：各縣市政府教育局（處）公告之學區劃分表（收錄縣市、學年度與網址見「<a href="coverage.html">收錄狀態總覽</a>」）；
+  村里界：內政部國土測繪中心 村(里)界（TWD97經緯度）1150817版；鄰數：內政部戶政司 115年7月村里鄰戶數；
+  學校名單：教育部統計處 115學年度國民小學／國民中學／附設國民中學名錄；學校座標：OpenStreetMap（ODbL），少數以 ArcGIS 地址定位補足並逐筆檢核鄉鎮市區；底圖 © OpenStreetMap 貢獻者；步行路線：OSRM（FOSSGIS）。</div>
+  <div class="disc"><b>免責聲明</b>：本站為整理官方公開資料之便民工具，非政府官方網站。學區以戶籍地址之里、鄰認定，並受設籍期限、總量管制、額滿分發、共同（自由）學區等規定影響；實際入學以學校及各縣市教育局（處）公告為準。線上定位僅供參考，落點靠近里界時可能誤判，請以戶口名簿之里鄰為準。未收錄縣市所列「附近學校」僅為直線距離最近之學校，<b>不代表學區</b>。</div>
+  <div class="disc">資料整理：2026年10月（臺灣時間）。</div>
+</footer>
+<div id="toast"></div>
+<script src="vendor/leaflet.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

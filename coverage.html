@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-Hant-TW"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>收錄狀態總覽｜全臺國中小學區地圖</title>
+<link rel="stylesheet" href="vendor/leaflet.css"><link rel="stylesheet" href="css/style.css">
+<style>body{display:block}.wrap{max-width:1200px;margin:0 auto;padding:12px}#cmap{height:420px;border-radius:10px;border:1px solid var(--line)}.kpi{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.kpi div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px}.kpi b{display:block;font-size:22px;color:var(--navy)}.tw{overflow-x:auto}td a{color:var(--navy)}</style>
+</head><body>
+<header><div class="hwrap"><div><h1>學區資料收錄狀態總覽</h1><div class="sub">誠實標示：已收錄者附學年度與官方來源；尚未收錄者不臆測學區</div></div><nav><a href="index.html">← 回地圖</a><a href="keelung/index.html">基隆專版</a></nav></div></header>
+<div class="wrap">
+<div class="kpi" id="kpi"></div>
+<div id="cmap"></div>
+<h2 style="font-size:16px;color:var(--navy)">各縣市收錄狀態（22 縣市）</h2>
+<div class="tw"><table class="cov" id="tbl"><thead><tr><th>縣市</th><th>狀態</th><th>已收錄學年度</th><th>資料來源／官方連結</th><th>官方格式</th><th>鄉鎮市區／村里／鄰</th><th>國小／國中（有座標）</th><th>學區檢核</th></tr></thead><tbody></tbody></table></div>
+<p class="small">全國共用資料（已載入全部 22 縣市）：內政部國土測繪中心村里界 1150817 版；內政部戶政司 115年7月 村里鄰數；教育部 115 學年度國中小名錄；學校座標以 OpenStreetMap 為主（ODbL）、ArcGIS 地址定位補足且逐筆核對鄉鎮市區，少數無可靠座標者不標點。<br>
+「尚未收錄」縣市：查詢時只列直線距離最近之學校並標示「附近學校，非官方學區」，並提供該縣市官方學區公告連結。<br>
+門牌→里鄰精確比對目前僅基隆市（內政部戶政司門牌資料）；其他縣市以線上定位＋村里界套疊推得里別，靠近里界時可能誤判，請以戶口名簿為準。</p>
+<div class="brand">中信房屋 冠軍商仲 劉展麟　LINE @key1</div>
+</div>
+<script src="vendor/leaflet.js"></script>
+<script>
+(async function(){
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const [R,S,C]=await Promise.all(['data/registry.json','data/stats.json','data/counties.geojson'].map(u=>fetch(u).then(r=>r.json())));
+let cv=R.filter(r=>r.status==='covered'),tv=0,tvc=0,ts=0,tsc=0;for(const r of R){tv+=S[r.code].villages;ts+=S[r.code].n_s;tsc+=S[r.code].coord;if(r.status==='covered')tvc+=S[r.code].villages;}
+document.getElementById('kpi').innerHTML='<div><b>'+cv.length+' / 22</b>縣市已收錄官方學區</div><div><b>'+tvc.toLocaleString()+' / '+tv.toLocaleString()+'</b>村里已收錄（'+(tvc/tv*100).toFixed(1)+'%）</div><div><b>'+tsc.toLocaleString()+' / '+ts.toLocaleString()+'</b>所學校有座標</div><div><b>22 / 22</b>縣市村里界、鄰數、學校名單已載入</div>';
+const tb=document.querySelector('#tbl tbody');
+for(const r of R){const s=S[r.code];const ok=r.status==='covered';
+ let chk='—';if(s.check){const ge=s.check.gaps_e||s.check.missing_e,gj=s.check.gaps_j||s.check.missing_j;chk='村里 '+s.zv+'/'+s.villages+(ge.length||gj.length?'；表列未涵蓋：國小 '+ge.length+' 里（'+ge.map(esc).join('、')+'）、國中 '+gj.length+' 里（'+gj.map(esc).join('、')+'）':' 全部鄰皆有國小與國中表列')+(s.auto?'；<b>自由文字自動解析</b>，結果附原文':'')+'；依鄰分屬 國小'+s.split_e+'／國中'+s.split_j+'；共同學區 國小'+s.shared_e+'／國中'+s.shared_j;}
+ tb.insertAdjacentHTML('beforeend','<tr><td><a href="index.html#c='+r.code+'">'+esc(r.name)+'</a></td><td>'+(ok?'<span class="badge b-ok">已收錄</span>':'<span class="badge b-none">尚未收錄</span>')+(r.partial?'<br><span class="small">'+esc(r.partial)+'</span>':'')+(r.cross?'<br><span class="small">另列臺北市國中學區表之跨縣市里</span>':'')+'</td><td>'+(ok?esc(r.years)+'學年度':'—')+'</td><td>'+esc(r.source)+'<br><a href="'+esc(r.official)+'" target="_blank" rel="noopener">官方連結</a>'+(r.special?'　<a href="'+esc(r.special)+'">專版</a>':'')+'</td><td>'+esc(r.fmt||'')+'</td><td>'+s.towns+'／'+s.villages+'／'+s.lins.toLocaleString()+'</td><td>'+s.e+'／'+s.j+'（'+s.coord+'）</td><td class="small">'+chk+'</td></tr>');}
+const m=L.map('cmap').setView([23.7,120.9],7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,attribution:'© OpenStreetMap 貢獻者'}).addTo(m);
+const by={};for(const r of R)by[r.code]=r;
+const g=L.geoJSON(C,{style:f=>{const ok=by[f.properties.code].status==='covered';return {color:'#13294b',weight:1,fillColor:ok?'#1b7f4b':'#9e9e9e',fillOpacity:ok?.5:.15};},onEachFeature:(f,l)=>{const r=by[f.properties.code];l.bindTooltip(r.name+'：'+(r.status==='covered'?'已收錄 '+r.years+'學年度':'尚未收錄'),{sticky:true});l.on('click',()=>location.href='index.html#c='+r.code);}}).addTo(m);
+m.setView([23.75,120.6],window.innerWidth<700?6:7);window._ready=true;
+})();
+</script></body></html>

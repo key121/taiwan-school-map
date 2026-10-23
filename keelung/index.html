@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>基隆市學區地圖｜115、116學年度國中小學區查詢</title>
+<meta name="description" content="輸入基隆市門牌地址，查詢115、116學年度國小、國中學區。資料依基隆市政府教育處學區劃分表、內政部村里界與基隆市門牌資料建置。">
+<meta property="og:title" content="基隆市學區地圖｜115、116學年度國中小學區查詢">
+<meta property="og:description" content="輸入地址即查國小／國中學區，含分鄰、共同學區標示。">
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%2314304f%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2218%22 text-anchor=%22middle%22 fill=%22%23c9a227%22%3E學%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="logo">學</div>
+  <div><h1>基隆市學區地圖</h1><div class="sub">115、116學年度國民中小學學區 · 依教育處官方劃分表（116年8月19日修正，與115學年度表列逐列相同）</div></div>
+  <div class="spacer"></div>
+  <button class="about" id="aboutBtn">資料說明</button>
+</header>
+<div class="app">
+  <div id="map" role="application" aria-label="基隆市學區地圖"></div>
+  <aside class="panel" id="panel">
+    <section class="card">
+      <h2><span class="n">1</span>輸入地址查學區</h2>
+      <form class="searchrow" id="addrForm" autocomplete="off">
+        <input id="addr" list="streetList" placeholder="地址，或「安樂區興寮里第26鄰」" aria-label="基隆市地址">
+        <button class="btn" type="submit">查詢</button>
+      </form>
+      <datalist id="streetList"></datalist>
+      <div class="chips" id="examples"></div>
+      <label class="opt"><input type="checkbox" id="useOnline" checked> 門牌資料查無此址時，改用線上定位（ArcGIS，僅送出地址文字）</label>
+    </section>
+    <section class="card">
+      <h2><span class="n">2</span>或依 區 → 里 → 鄰 查詢</h2>
+      <div class="selrow">
+        <select id="selDist" aria-label="行政區"></select>
+        <select id="selVill" aria-label="里"></select>
+        <select id="selLin" aria-label="鄰"></select>
+      </div>
+      <div class="small" style="margin-top:6px">戶籍「鄰」可見於戶口名簿或門牌資料；同一里若依鄰分屬不同學校，必須選鄰。</div>
+    </section>
+    <section class="card result" id="result" hidden></section>
+    <section class="card">
+      <details class="schools" id="schoolsBox">
+        <summary>依學校查學區範圍</summary>
+        <div class="slist" id="slist"></div>
+      </details>
+    </section>
+    <footer class="card about" id="foot"></footer>
+  </aside>
+</div>
+<div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+<script src="vendor/leaflet.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

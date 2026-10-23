@@ -1,0 +1,206 @@
+[
+ {
+  "code": "10017",
+  "name": "基隆市",
+  "status": "covered",
+  "years": "115、116",
+  "source": "基隆市政府教育處 116學年度國民中小學學區劃分表（116年8月19日修正；與115學年度表逐列相同）PDF；並以內政部戶政司門牌資料逐筆驗證",
+  "official": "https://www.klcg.gov.tw/tw/education/3489-321280.html",
+  "fmt": "PDF（已解析）",
+  "special": "keelung/"
+ },
+ {
+  "code": "63000",
+  "name": "臺北市",
+  "status": "covered",
+  "years": "115",
+  "source": "臺北市政府教育局「臺北市中小學校學區」開放資料（國小、國中里鄰學區對照表CSV）",
+  "official": "https://data.taipei/dataset/detail?id=678c5215-f14a-47e3-92bd-da43f9d7c7a9",
+  "fmt": "CSV（機器可讀）"
+ },
+ {
+  "code": "65000",
+  "name": "新北市",
+  "status": "covered",
+  "years": "115",
+  "source": "新北市政府教育局 115學年度國小／國中學區一覽表（新北市政府資料開放平臺 CSV；基本學區、自由學區、備註為自由文字，本站以程式解析並逐鄰檢核，結果附原文）",
+  "official": "https://data.ntpc.gov.tw/datasets/c8a74727-102f-49ee-94df-0b3116edff5e",
+  "fmt": "CSV（自由文字，已自動解析）",
+  "partial": "國小 5 個里部分鄰、國中 1 個里 1 鄰官方表未列（多為114年里鄰整編後新編里鄰），查詢時明示「表列未涵蓋」",
+  "cross": {
+   "file": "cross_63000.json",
+   "from": "63000"
+  }
+ },
+ {
+  "code": "68000",
+  "name": "桃園市",
+  "status": "none",
+  "years": "",
+  "source": "桃園市政府教育局「學區資訊」：115學年度各區國民中小學學區一覽表（PDF，分區）",
+  "official": "https://www.tyc.edu.tw/News.aspx?n=5208&sms=11286",
+  "fmt": "PDF（分區）"
+ },
+ {
+  "code": "66000",
+  "name": "臺中市",
+  "status": "none",
+  "years": "",
+  "source": "臺中市政府教育局「學區查詢」；115學年度國小／國中學區表",
+  "official": "https://www.tc.edu.tw/page/02b0fa2f-7dda-404f-b411-8286cd97c9c1",
+  "fmt": "線上查詢／PDF"
+ },
+ {
+  "code": "67000",
+  "name": "臺南市",
+  "status": "none",
+  "years": "",
+  "source": "臺南市政府教育局 115學年度國民小學／國民中學學區一覽表（PDF）；另有開放資料「臺南市國中小學區查詢」",
+  "official": "https://www.tn.edu.tw/%e6%96%87%e4%bb%b6%e4%b8%8b%e8%bc%89-%e8%aa%b2%e7%a8%8b%e7%99%bc%e5%b1%95%e7%a7%91/",
+  "fmt": "PDF／開放資料"
+ },
+ {
+  "code": "64000",
+  "name": "高雄市",
+  "status": "none",
+  "years": "",
+  "source": "高雄市政府教育局 115學年度國民小學／國民中學學區劃分一覽表（PDF）",
+  "official": "https://lyhr-house.kcg.gov.tw/Content_List.aspx?n=7D269B5CEEC51DE2",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10018",
+  "name": "新竹市",
+  "status": "none",
+  "years": "",
+  "source": "新竹市政府教育處「學區與班級數」：115學年度國小、國中學區劃分表（PDF）",
+  "official": "https://www.hc.edu.tw/edub/basic/schoolArea.aspx",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10004",
+  "name": "新竹縣",
+  "status": "none",
+  "years": "",
+  "source": "新竹縣政府教育局 115學年度各鄉鎮市國民中小學學區劃分表（PDF）",
+  "official": "https://doe.hcc.edu.tw/doe_front/index.php?action=document&uuid=642e5b94-1808-4aba-b4c9-03b32890fc08",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10005",
+  "name": "苗栗縣",
+  "status": "none",
+  "years": "",
+  "source": "苗栗縣政府教育處「學區查詢」",
+  "official": "https://www.mlc.edu.tw/System/main/School/AreaSearch.php",
+  "fmt": "線上查詢"
+ },
+ {
+  "code": "10007",
+  "name": "彰化縣",
+  "status": "none",
+  "years": "",
+  "source": "彰化縣政府教育處「國中小學生就學服務專區—學區劃分」",
+  "official": "https://www.chcg.gov.tw/DTO/education/07other/other01_con.aspx?cate_id=4890&data_id=20009&topsn=4889",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10008",
+  "name": "南投縣",
+  "status": "none",
+  "years": "",
+  "source": "南投縣政府開放資料「南投縣學區劃分表」（115學年度PDF）",
+  "official": "https://data.nantou.gov.tw/dataset/doe-02",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10009",
+  "name": "雲林縣",
+  "status": "none",
+  "years": "",
+  "source": "雲林縣政府教育處 115學年度國民中小學學區劃分表（115年1月28日修正，PDF）",
+  "official": "https://douliouhousehold.yunlin.gov.tw/News.aspx?n=18155&sms=19473",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10020",
+  "name": "嘉義市",
+  "status": "none",
+  "years": "",
+  "source": "嘉義市政府「嘉義市國中小學區劃分表」開放資料（115學年度CSV，學區範圍為文字敘述）",
+  "official": "https://data.gov.tw/dataset/52485",
+  "fmt": "CSV（文字敘述，需解析）"
+ },
+ {
+  "code": "10010",
+  "name": "嘉義縣",
+  "status": "none",
+  "years": "",
+  "source": "嘉義縣政府教育處「嘉義縣國民中小學學區劃分」（檔案下載區）",
+  "official": "https://www.cyc.edu.tw/modules/tadnews/index.php?nsn=18144",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10013",
+  "name": "屏東縣",
+  "status": "none",
+  "years": "",
+  "source": "屏東縣政府教育處公告 B115000302（國小）、B115000301（國中）115學年度學區劃分表",
+  "official": "https://portal.ptc.edu.tw/bulletin/view.php?sn=B115000302",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10002",
+  "name": "宜蘭縣",
+  "status": "none",
+  "years": "",
+  "source": "宜蘭縣政府教育處 學務管理科「新生入學、班級學生數、學區劃分」",
+  "official": "https://2blog.ilc.edu.tw/26064/category/c-2670-7/c-2678-1/",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10015",
+  "name": "花蓮縣",
+  "status": "none",
+  "years": "",
+  "source": "花蓮縣115學年度公立國民中小學學區劃分表（114年10月29日公告，PDF）",
+  "official": "https://www.efs.hlc.edu.tw/wp-content/uploads/sites/37/2025/11/115%E5%AD%B8%E5%B9%B4%E5%BA%A6%E8%8A%B1%E8%93%AE%E7%B8%A3%E5%85%AC%E7%AB%8B%E5%9C%8B%E6%B0%91%E4%B8%AD%E5%B0%8F%E5%AD%B8%E5%AD%B8%E5%8D%80%E5%8A%83%E5%88%86%E8%A1%A8.pdf",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10014",
+  "name": "臺東縣",
+  "status": "none",
+  "years": "",
+  "source": "臺東縣政府教育處「國中小新生入學基本資料」：115學年度國民小學學區劃分表（PDF）",
+  "official": "https://www.boe.ttct.edu.tw/home2/page04.php",
+  "fmt": "PDF"
+ },
+ {
+  "code": "10016",
+  "name": "澎湖縣",
+  "status": "none",
+  "years": "",
+  "source": "澎湖縣政府教育處（大學區制；115學年度學區劃分表）",
+  "official": "https://www.penghu.gov.tw/edu/home.jsp?act=view&dataserno=202412170006&id=93",
+  "fmt": "PDF"
+ },
+ {
+  "code": "09020",
+  "name": "金門縣",
+  "status": "none",
+  "years": "",
+  "source": "金門縣政府教育處（未找到115學年度學區表之官方網址，請洽教育處）",
+  "official": "https://www.kinmen.gov.tw/bigdata/cp.aspx?n=E70998FF43576B6E",
+  "fmt": "—"
+ },
+ {
+  "code": "09007",
+  "name": "連江縣",
+  "status": "none",
+  "years": "",
+  "source": "連江縣政府教育處國民教育科（公開可得者為112學年度學區表；最新請洽 0836-25614）",
+  "official": "https://www.matsu.edu.tw/Publish.aspx?cnid=24",
+  "fmt": "—"
+ }
+]
