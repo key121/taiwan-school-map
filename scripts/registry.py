@@ -8,7 +8,7 @@ R=[
  dict(code='66000',name='臺中市',status='none',years='',source='臺中市政府教育局「學區查詢」；115學年度國小／國中學區表',official='https://www.tc.edu.tw/page/02b0fa2f-7dda-404f-b411-8286cd97c9c1',fmt='線上查詢／PDF'),
  dict(code='67000',name='臺南市',status='none',years='',source='臺南市政府教育局 115學年度國民小學／國民中學學區一覽表（PDF）；另有開放資料「臺南市國中小學區查詢」',official='https://www.tn.edu.tw/%e6%96%87%e4%bb%b6%e4%b8%8b%e8%bc%89-%e8%aa%b2%e7%a8%8b%e7%99%bc%e5%b1%95%e7%a7%91/',fmt='PDF／開放資料'),
  dict(code='64000',name='高雄市',status='none',years='',source='高雄市政府教育局 115學年度國民小學／國民中學學區劃分一覽表（PDF）',official='https://lyhr-house.kcg.gov.tw/Content_List.aspx?n=7D269B5CEEC51DE2',fmt='PDF'),
- dict(code='10018',name='新竹市',status='none',years='',source='新竹市政府教育處「學區與班級數」：115學年度國小、國中學區劃分表（PDF）',official='https://www.hc.edu.tw/edub/basic/schoolArea.aspx',fmt='PDF'),
+ dict(code='10018',name='新竹市',status='covered',years='115',source='新竹市政府教育處「學區與班級數」：115學年度國民小學、國民中學學區劃分表（PDF，114年12月公告；本站以字元座標還原表格後由程式解析並逐鄰檢核，結果附原文）',official='https://www.hc.edu.tw/edub/basic/schoolArea.aspx',fmt='PDF（表格，已自動解析）',partial='官方表部分鄰別超出戶政司現行鄰數（如光明里28鄰、金竹里27鄰等，共 7 里），無法對應；清大附小學區之「未能入學者分發西門國小」標示為條件'),
  dict(code='10004',name='新竹縣',status='none',years='',source='新竹縣政府教育局 115學年度各鄉鎮市國民中小學學區劃分表（PDF）',official='https://doe.hcc.edu.tw/doe_front/index.php?action=document&uuid=642e5b94-1808-4aba-b4c9-03b32890fc08',fmt='PDF'),
  dict(code='10005',name='苗栗縣',status='none',years='',source='苗栗縣政府教育處「學區查詢」',official='https://www.mlc.edu.tw/System/main/School/AreaSearch.php',fmt='線上查詢'),
  dict(code='10007',name='彰化縣',status='none',years='',source='彰化縣政府教育處「國中小學生就學服務專區—學區劃分」',official='https://www.chcg.gov.tw/DTO/education/07other/other01_con.aspx?cate_id=4890&data_id=20009&topsn=4889',fmt='PDF'),
