@@ -80,7 +80,7 @@ function drawCounty(fit){
     m.bindTooltip(s.name.replace(/^(市立|縣立)/,''),{direction:'top'}); m.on('click',()=>{m.bindPopup(schoolPopup(s),{maxWidth:310}).openPopup();}); schLayer.addLayer(m);}
   schLayer.addTo(map);
   ctyLayer.setStyle(f=>{const r=REGBY[f.properties.code];const me=f.properties.code===cur.code;return {color:'#13294b',weight:me?2.5:1,fillColor:r.status==='covered'?'#1b7f4b':'#9e9e9e',fillOpacity:me?0:(r.status==='covered'?.2:.08)};});
-  if(fit){const b=FITBOX[cur.code]||CTY.features.find(f=>f.properties.code===cur.code).properties.bbox;map.fitBounds([[b[1],b[0]],[b[3],b[2]]],{padding:[10,10]});}
+  if(fit){const b=FITBOX[cur.code]||CTY.features.find(f=>f.properties.code===cur.code).properties.bbox;map.fitBounds([[b[1],b[0]],[b[3],b[2]]],{padding:[10,10],animate:false});}
   legend();
 }
 function villPopup(f){
@@ -208,7 +208,7 @@ async function showResult(R,fromHash){
   $('#shareBtn').onclick=()=>{const u=location.href.split('#')[0]+'#'+shareHash(R);(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('已複製分享連結'),()=>prompt('複製此連結',u));};
   if(!fromHash) history.replaceState(null,'','#'+shareHash(R));
   pinLayer.clearLayers(); L.marker(pt,{icon:L.divIcon({className:'',html:'<div class="pinicon">📍</div>',iconSize:[30,30],iconAnchor:[15,28]}),zIndexOffset:2000}).addTo(pinLayer).bindTooltip(R.geo?'定位點':'村里中心（示意）');
-  if(f){const gl=L.geoJSON(f,{style:{color:'#13294b',weight:3,fill:false}}).addTo(pinLayer);map.fitBounds(gl.getBounds(),{maxZoom:16,padding:[30,30],animate:!fromHash});}
+  if(f){const gl=L.geoJSON(f,{style:{color:'#13294b',weight:3,fill:false}}).addTo(pinLayer);const doFit=()=>map.fitBounds(gl.getBounds(),{maxZoom:16,padding:[30,30],animate:!fromHash}); if(map._animatingZoom)map.once('zoomend',doFit); else doFit();}
   // 步行（只在有定位點時計算，避免以村里中心誤導）
   for(const id of walkTargets){const s=cur.sBy[id],el=document.querySelector('.walk[data-id="'+id+'"]');if(!el||!s)continue;
     if(s.lat==null){el.textContent='（此校無可靠座標）';continue;}
