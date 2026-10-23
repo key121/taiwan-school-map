@@ -48,12 +48,14 @@ function villStyle(f){
   const pid=patternFor(ids.slice(0,4).map(sColor),st==='shared');
   return {color:st==='shared'?'#b3261e':'#8a4b00',weight:1.5,dashArray:'4 3',opacity:.9,fillColor:'url(#'+pid+')',fillOpacity:dim?.15:.7};
 }
-function segBadge(x){if(x.m&&x.m.length)return ' <span class="badge b-bad">依門牌或條件分屬・請看原文</span>';if(x.s.length>1)return x.f==='bm'?' <span class="badge b-bad">皆列基本學區・依備註分配</span>':' <span class="badge b-warn">'+(cur.zones.meta.auto_parsed?'自由學區':'共同學區')+'・擇一</span>';return '';}
+function ML(){const m=cur.zones&&cur.zones.meta;return m&&m.multi_label||(m&&m.auto_parsed?'自由學區':'共同學區');}
+function gName(x,id){if(x.f!=='g'||!x.g)return sName(id);const t=['男','女'].filter(k=>(x.g[k]||[]).includes(id));return sName(id)+(t.length===1?'（'+t[0]+'生）':'');}
+function segBadge(x){let b='';if(x.f==='g')b+=' <span class="badge b-warn">依性別分校</span>';if(x.m&&x.m.length)return b+' <span class="badge b-bad">依門牌或條件分屬・請看原文</span>';if(x.f==='g'){const sh=['男','女'].some(k=>(x.g[k]||[]).length>1);return b+(sh?' <span class="badge b-warn">'+ML()+'・擇一</span>':'');}if(x.s.length>1)return x.f==='bm'?' <span class="badge b-bad">皆列基本學區・依備註分配</span>':' <span class="badge b-warn">'+ML()+'・擇一</span>';return '';}
 function notesHtml(ids){const N=cur.zones&&cur.zones.school_notes;if(!N)return '';const h=ids.filter(id=>N[id]).map(id=>'<div class="o"><b>'+esc(sName(id))+' 備註</b>：'+esc(N[id])+'</div>').join('');return h;}
 function rulesHtml(key,l,L,hiLin){
   const r=rulesOf(key,l); if(!r.length) return '<div class="o">表列未涵蓋此里，請洽教育局（處）。</div>';
   const st=villStatus(key,l);
-  return r.map(x=>{const on=hiLin!=null&&hiLin>=x.a&&hiLin<=x.b;return '<div class="opt"'+(on?' style="background:#fff6d8"':'')+'>'+(st==='single'&&r.length===1?'':'<b>'+linTxt(x.a,x.b,L)+'</b>：')+x.s.map(id=>'<span class="sw" style="background:'+sColor(id)+'"></span>'+esc(sName(id))).join(' ／ ')+segBadge(x)+(cur.zones.meta.auto_parsed?'<div class="o">原文：'+x.t.map(esc).join('；')+'</div>':'')+'</div>';}).join('');
+  return r.map(x=>{const on=hiLin!=null&&hiLin>=x.a&&hiLin<=x.b;return '<div class="opt"'+(on?' style="background:#fff6d8"':'')+'>'+(st==='single'&&r.length===1?'':'<b>'+linTxt(x.a,x.b,L)+'</b>：')+x.s.map(id=>'<span class="sw" style="background:'+sColor(id)+'"></span>'+esc(gName(x,id))).join(' ／ ')+segBadge(x)+(cur.zones.meta.auto_parsed?'<div class="o">原文：'+x.t.map(esc).join('；')+'</div>':'')+'</div>';}).join('');
 }
 
 /* ---------- 地圖 ---------- */
@@ -69,7 +71,7 @@ function legend(){
   const el=$('#legend'); if(!cur){el.innerHTML='<b>收錄狀態</b><br><span class="sw" style="background:#1b7f4b;opacity:.6"></span>已收錄官方學區<br><span class="sw" style="background:#9e9e9e;opacity:.5"></span>尚未收錄（僅附近學校）';return;}
   if(!cur.zones){el.innerHTML='<b>'+esc(cur.reg.name)+'：尚未收錄官方學區</b><br>灰色＝村里界（內政部）<br><span class="sw" style="background:#1f5fbf;border-radius:50%"></span>國小　<span class="sw" style="background:#c0392b;border-radius:50%"></span>國中<br><span class="small">學校點位不代表學區範圍。</span>';return;}
   let n={single:0,split:0,shared:0,none:0};for(const k in cur.zones.v)n[villStatus(k,lv)]++;
-  el.innerHTML='<b>'+esc(cur.reg.name)+' '+LVN[lv]+'學區</b><br><span class="sw" style="background:#4c8fd6"></span>全里同一學區（'+n.single+'）<br><span class="sw" style="background:repeating-linear-gradient(45deg,#d68a00 0 4px,#4c8fd6 4px 8px)"></span>依鄰分屬（'+n.split+'）<br><span class="sw" style="background:repeating-linear-gradient(45deg,#d62728 0 3px,#fff 3px 5px,#2ca02c 5px 8px)"></span>'+(cur.zones&&cur.zones.meta.auto_parsed?'自由學區':'共同學區')+'・擇一（'+n.shared+'）'+(n.none?'<br><span class="sw" style="border:1px dashed #b3261e"></span>表列未涵蓋（'+n.none+'）':'')+'<br><span class="small">斜線里請點選查看各鄰歸屬；顏色僅區分相鄰學區。</span>';
+  el.innerHTML='<b>'+esc(cur.reg.name)+' '+LVN[lv]+'學區</b><br><span class="sw" style="background:#4c8fd6"></span>全里同一學區（'+n.single+'）<br><span class="sw" style="background:repeating-linear-gradient(45deg,#d68a00 0 4px,#4c8fd6 4px 8px)"></span>依鄰分屬（'+n.split+'）<br><span class="sw" style="background:repeating-linear-gradient(45deg,#d62728 0 3px,#fff 3px 5px,#2ca02c 5px 8px)"></span>'+ML()+(Object.values(cur.zones.v).some(v=>(v[lv]||[]).some(x=>x.f==='g'))?'／依性別分校':'')+'（'+n.shared+'）'+(n.none?'<br><span class="sw" style="border:1px dashed #b3261e"></span>表列未涵蓋（'+n.none+'）':'')+'<br><span class="small">斜線里請點選查看各鄰歸屬；顏色僅區分相鄰學區。</span>';
 }
 function drawCounty(fit){
   if(villLayer){map.removeLayer(villLayer);villLayer=null;} if(schLayer){map.removeLayer(schLayer);schLayer=null;}
@@ -193,7 +195,7 @@ async function showResult(R,fromHash){
       if(R.lin==null&&!covAll){h+='<div class="o"><span class="badge b-bad">部分鄰表列未涵蓋</span> 請指定鄰別：</div>'+rulesHtml(key,l,Lc)+'</div>';continue;}
       const sets=new Set(hit.map(x=>x.s.join()));
       if(R.lin!=null&&!hit.length){h+='<div class="o"><span class="badge b-bad">表列未涵蓋</span> 官方表未列第'+R.lin+'鄰（可能為里鄰整編後新編之鄰），請洽教育局（處）。不推測。</div>'+rulesHtml(key,l,Lc)+'</div>';continue;}
-      if(sets.size===1){const ids=hit[0].s;h+=ids.map(id=>{walkTargets.push(id);return '<div class="sch"><span class="sw" style="background:'+sColor(id)+'"></span>'+esc(sName(id))+'</div><div class="walk" data-id="'+id+'"></div>';}).join('')+(ids.length>1||(hit[0].m&&hit[0].m.length)?'<div class="o">'+segBadge(hit[0])+' '+(hit[0].m&&hit[0].m.length?'原文含路段／門牌等條件（鄰別以外），請核對下方原文。':hit[0].f==='bm'?'官方表兩校皆列為基本學區，實際分配依備註（如身分證字號尾數）辦理。':'表列上述學校，可擇一就讀（仍依各校分發規定）。')+'</div>':'')+(R.lin==null&&r.length>1&&!(hit[0].m&&hit[0].m.length)?'<div class="o">此里各鄰皆同。</div>':'')+(cur.zones.meta.auto_parsed?'<div class="o">原文：'+[...new Set(hit.flatMap(x=>x.t))].map(esc).join('；')+'</div>':'')+notesHtml(ids);}
+      if(sets.size===1){const ids=hit[0].s;h+=ids.map(id=>{walkTargets.push(id);return '<div class="sch"><span class="sw" style="background:'+sColor(id)+'"></span>'+esc(gName(hit[0],id))+'</div><div class="walk" data-id="'+id+'"></div>';}).join('')+(ids.length>1||(hit[0].m&&hit[0].m.length)?'<div class="o">'+segBadge(hit[0])+' '+(hit[0].m&&hit[0].m.length?'原文含路段／門牌等條件（鄰別以外），請核對下方原文。':hit[0].f==='bm'?'官方表兩校皆列為基本學區，實際分配依備註（如身分證字號尾數）辦理。':hit[0].f==='g'?'官方表依性別分列學區：男生、女生分別就讀上列標示之學校'+(['男','女'].some(k=>(hit[0].g[k]||[]).length>1)?'（同性別列兩校者可擇一）':'')+'。':'表列上述學校，可擇一就讀（仍依各校分發規定）。')+'</div>':'')+(R.lin==null&&r.length>1&&!(hit[0].m&&hit[0].m.length)?'<div class="o">此里各鄰皆同。</div>':'')+(cur.zones.meta.auto_parsed?'<div class="o">原文：'+[...new Set(hit.flatMap(x=>x.t))].map(esc).join('；')+'</div>':'')+notesHtml(ids);}
       else{h+='<div class="o"><span class="badge b-warn">依鄰分屬</span> 此里不同鄰分屬不同學區，請指定鄰別（不猜測）：</div>'+rulesHtml(key,l,Lc)+notesHtml(schoolsInRules(hit));}
       h+='</div>';
     }

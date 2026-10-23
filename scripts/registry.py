@@ -14,7 +14,7 @@ R=[
  dict(code='10007',name='彰化縣',status='none',years='',source='彰化縣政府教育處「國中小學生就學服務專區—學區劃分」',official='https://www.chcg.gov.tw/DTO/education/07other/other01_con.aspx?cate_id=4890&data_id=20009&topsn=4889',fmt='PDF'),
  dict(code='10008',name='南投縣',status='none',years='',source='南投縣政府開放資料「南投縣學區劃分表」（115學年度PDF）',official='https://data.nantou.gov.tw/dataset/doe-02',fmt='PDF'),
  dict(code='10009',name='雲林縣',status='none',years='',source='雲林縣政府教育處 115學年度國民中小學學區劃分表（115年1月28日修正，PDF）',official='https://douliouhousehold.yunlin.gov.tw/News.aspx?n=18155&sms=19473',fmt='PDF'),
- dict(code='10020',name='嘉義市',status='none',years='',source='嘉義市政府「嘉義市國中小學區劃分表」開放資料（115學年度CSV，學區範圍為文字敘述）',official='https://data.gov.tw/dataset/52485',fmt='CSV（文字敘述，需解析）'),
+ dict(code='10020',name='嘉義市',status='covered',years='115',source='嘉義市政府「嘉義市國中小學區劃分表」開放資料 115學年度CSV（資料集更新 2026-01-16；學區範圍為依校列出之文字敘述，本站以程式解析並逐鄰檢核，結果附原文；國中部分依男、女生分校）',official='https://data.gov.tw/dataset/52485',fmt='CSV（文字敘述，已自動解析）',partial='部分鄰另有路段／門牌條件（國小 8 段、國中 6 段），查詢時標示「依門牌或條件分屬」並附原文；官方表西平里列至20鄰，戶政司資料僅18鄰'),
  dict(code='10010',name='嘉義縣',status='none',years='',source='嘉義縣政府教育處「嘉義縣國民中小學學區劃分」（檔案下載區）',official='https://www.cyc.edu.tw/modules/tadnews/index.php?nsn=18144',fmt='PDF'),
  dict(code='10013',name='屏東縣',status='none',years='',source='屏東縣政府教育處公告 B115000302（國小）、B115000301（國中）115學年度學區劃分表',official='https://portal.ptc.edu.tw/bulletin/view.php?sn=B115000302',fmt='PDF'),
  dict(code='10002',name='宜蘭縣',status='none',years='',source='宜蘭縣政府教育處 學務管理科「新生入學、班級學生數、學區劃分」',official='https://2blog.ilc.edu.tw/26064/category/c-2670-7/c-2678-1/',fmt='PDF'),
