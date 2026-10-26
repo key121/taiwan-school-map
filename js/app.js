@@ -1,4 +1,4 @@
-/* 台灣國中小學區地圖 — app.js（無建置步驟、無金鑰；各縣市資料按需載入） */
+/* 台灣學區地圖 — app.js（無建置步驟、無金鑰；各縣市資料按需載入） */
 (function(){
 'use strict';
 const $=s=>document.querySelector(s);
