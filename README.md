@@ -1,4 +1,4 @@
-# 全台學區地圖｜輸入地址查國中小學區
+# 台灣學區地圖｜輸入地址查國中小學區
 
 線上版：https://key121.github.io/taiwan-school-map/
 
