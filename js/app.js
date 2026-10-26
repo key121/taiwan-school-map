@@ -184,7 +184,7 @@ async function showResult(R,fromHash){
   if(R.lin!=null&&Lc&&(R.lin<1||R.lin>Lc)){renderMsg(R.town+R.vill+'查無第'+R.lin+'鄰','依戶政司資料，'+R.vill+'共 '+Lc+' 鄰（第1-'+Lc+'鄰）。請核對戶口名簿。');return;}
   $('#selT').value=R.town; fillVills(R.town); $('#selV').value=R.vill; fillLins(R.town,R.vill); if(R.lin)$('#selL').value=R.lin;
   let h='<div class="res"><h2>'+esc(R.q||'')+'</h2><div class="loc">'+esc(cur.reg.name+' '+R.town+' '+R.vill)+(R.lin?' 第'+R.lin+'鄰':'（未指定鄰）')+' · '+esc(R.method)+'</div>';
-  if(R.geo){h+='<div class="warn">線上定位比對到「'+esc(R.geo.match)+'」。里別由定位點套疊村里界推得，靠近里界時可能有誤；<b>請以戶口名簿之里鄰為準</b>，必要時用下拉選單修正'+(cur.code==='10017'?'，或改用<a href="keelung/index.html#q='+encodeURIComponent(R.q)+'">基隆專版門牌精確比對</a>':'')+'。</div>';}
+  if(R.geo){h+='<div class="warn">線上定位比對到「'+esc(R.geo.match)+'」。里別由定位點套疊村里界推得，靠近里界時可能有誤；<b>請以戶口名簿之里鄰為準</b>，必要時用下拉選單修正'+'。</div>';}
   const walkTargets=[];
   if(cur.zones){
     for(const l of ['e','j']){
