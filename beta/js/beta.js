@@ -1,3 +1,5 @@
+/* 資料位置：依本檔 <script src> 推得，首頁（/）與 /beta/ 共用同一支程式 */
+const DB=new URL('../',document.currentScript.src).href, CB=new URL('../../',document.currentScript.src).href;
 /* 台灣學區查詢 測試版：門牌 → 里鄰 → 學區。資料：beta/data（本測試版）＋ ../data（正式版之村里界、學校名錄，唯讀）。 */
 (function(){
 'use strict';
@@ -24,7 +26,7 @@ function loading(on){$('#loading').classList.toggle('hidden',!on);}
 
 /* ---------- 啟動 ---------- */
 async function boot(){
-  [REG,TOWNS]=await Promise.all([fj('data/registry.json'),fj('data/towns.json')]);
+  [REG,TOWNS]=await Promise.all([fj(DB+'data/registry.json'),fj(DB+'data/towns.json')]);
   for(const r of REG.counties)REGBY[r.code]=r;
   const sel=$('#county');
   for(const r of REG.counties){const o=document.createElement('option');o.value=r.code;o.textContent=r.name+'（'+STN[r.status]+'）';sel.appendChild(o);}
@@ -44,6 +46,9 @@ async function boot(){
   $('#qform').addEventListener('submit',hide);
   const h=new URLSearchParams(location.hash.slice(1));
   if(h.get('q')){$('#q').value=h.get('q');if(h.get('c'))$('#county').value=h.get('c');run(h.get('q'),h.get('c')||null,h.get('n')?+h.get('n'):null);}
+  // 舊版首頁分享連結：#c=縣市代碼&t=區&v=里&n=鄰（&l=e|j），收錄狀態頁連結：#c=縣市代碼
+  else if(h.get('c')&&REGBY[h.get('c')]){$('#county').value=h.get('c');
+    if(h.get('t')&&h.get('v')){const qq=h.get('t')+h.get('v')+(h.get('n')?h.get('n')+'鄰':'');$('#q').value=REGBY[h.get('c')].name+qq;run(REGBY[h.get('c')].name+qq,h.get('c'));}}
 }
 
 /* ---------- 解析地址 ---------- */
@@ -78,33 +83,33 @@ function distAt(s,code){return Object.keys(TOWNS).some(t=>TOWNS[t].includes(code
 async function loadCounty(code){
   if(cache[code])return cache[code];
   const reg=REGBY[code];
-  const [schools,zones]=await Promise.all([fj('../data/c/'+code+'/schools.json').catch(()=>[]),reg.hasZones?fj('data/c/'+code+'/zones.json'):Promise.resolve(null)]);
+  const [schools,zones]=await Promise.all([fj(CB+'data/c/'+code+'/schools.json').catch(()=>[]),reg.hasZones?fj(DB+'data/c/'+code+'/zones.json'):Promise.resolve(null)]);
   const sBy={};for(const s of schools)sBy[s.id]=s;
   if(zones&&zones.extra_schools)for(const s of zones.extra_schools)sBy[s.id]=Object.assign({extra:true},s);
   let cross=null,crossS={};
-  if(reg.cross){try{cross=await fj('../data/c/'+code+'/'+reg.cross.file);const cs=await fj('../data/c/'+reg.cross.from+'/schools.json');for(const s of cs)crossS[s.id]=s;}catch(e){}}
+  if(reg.cross){try{cross=await fj(CB+'data/c/'+code+'/'+reg.cross.file);const cs=await fj(CB+'data/c/'+reg.cross.from+'/schools.json');for(const s of cs)crossS[s.id]=s;}catch(e){}}
   return cache[code]={code,reg,schools,sBy,zones,cross,crossS,vill:null,villBy:null};
 }
 async function loadVill(C){
   if(C.vill)return C;
-  C.vill=await fj('../data/c/'+C.code+'/villages.json',!C._needPip);
+  C.vill=await fj(CB+'data/c/'+C.code+'/villages.json',!C._needPip);
   C.villBy={};for(const f of C.vill.features)if(f.properties.v)C.villBy[f.properties.t+'|'+f.properties.v]=f.properties;
   return C;
 }
-async function aMeta(code){if(!(code in addrMeta)){const r=REGBY[code];addrMeta[code]=r.addr?await fj('data/a/'+code+'/meta.json'):null;}return addrMeta[code];}
+async function aMeta(code){if(!(code in addrMeta)){const r=REGBY[code];addrMeta[code]=r.addr?await fj(DB+'data/a/'+code+'/meta.json'):null;}return addrMeta[code];}
 async function shard(code,dist,road){
   const M=await aMeta(code);if(!M||!M.f[dist])return null;
-  const f=M.f[dist];const b=f.nb>1?N.rhash(road,f.nb):0;const u='data/a/'+code+'/'+f.i+'_'+b+'.json.gz';
+  const f=M.f[dist];const b=f.nb>1?N.rhash(road,f.nb):0;const u=DB+'data/a/'+code+'/'+f.i+'_'+b+'.json.gz';
   if(!shardC[u])shardC[u]=fgz(u);
   return shardC[u];
 }
-async function roads(code){if(!roadsC[code])roadsC[code]=fgz('data/a/'+code+'/roads.json.gz');return roadsC[code];}
+async function roads(code){if(!roadsC[code])roadsC[code]=fgz(DB+'data/a/'+code+'/roads.json.gz');return roadsC[code];}
 
 /* ---------- 全台路名索引（沒寫縣市、區時用；每次只下載一個約 24KB 的分片） ---------- */
 const rbC={};let NAMES=null,NEXT_NOTE=null;
-async function roadBucket(road){const b=N.rhash(road,8);if(!rbC[b])rbC[b]=fgz('data/r/'+b+'.json.gz');return rbC[b];}
+async function roadBucket(road){const b=N.rhash(road,8);if(!rbC[b])rbC[b]=fgz(DB+'data/r/'+b+'.json.gz');return rbC[b];}
 async function roadLocs(road){const B=await roadBucket(road);return {locs:(B[road]||[]).map(x=>{const [code,i]=x.split('.');return {code,i:+i};}),sug:B['~'+road]||[]};}
-async function roadNames(){if(!NAMES)NAMES=fgz('data/r/names.json.gz');return NAMES;}
+async function roadNames(){if(!NAMES)NAMES=fgz(DB+'data/r/names.json.gz');return NAMES;}
 const noAddr=()=>REG.counties.filter(r=>!r.addr).map(r=>r.name);
 
 /* ---------- 社區名稱索引（基隆市：實價登錄社區＋報備門牌範圍；臺北市、新北市：管委會報備名稱＋登記門牌） ---------- */
@@ -112,7 +117,7 @@ const COMM_CODES=['10017','63000','65000'];
 // 每個縣市分檔、用到才下載（基隆約 30KB、臺北約 280KB、新北約 260KB gzip）；已知縣市時只載該縣市
 const COMMF={};
 function commFile(code){
-  if(!COMMF[code])COMMF[code]=fj('data/comm/'+code+'.json').then(j=>{j.code=code;for(const c of j.c){c.code=code;c.kind=j.kind||'range';c.keys=[c.n].concat(c.a||[]).map(cnorm).filter(Boolean);}return j;});
+  if(!COMMF[code])COMMF[code]=fj(DB+'data/comm/'+code+'.json').then(j=>{j.code=code;for(const c of j.c){c.code=code;c.kind=j.kind||'range';c.keys=[c.n].concat(c.a||[]).map(cnorm).filter(Boolean);}return j;});
   return COMMF[code];
 }
 function commCodes(q,forced){
@@ -173,7 +178,7 @@ async function geocode(q){
 }
 function inRing(x,y,r){let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c;}return c;}
 function inPoly(x,y,g){const P=g.type==='Polygon'?[g.coordinates]:g.coordinates;for(const p of P){if(inRing(x,y,p[0])){let h=false;for(let k=1;k<p.length;k++)if(inRing(x,y,p[k]))h=true;if(!h)return true;}}return false;}
-async function counties(forMap){if(!CTY)CTY=fj('../data/counties.geojson',forMap);return CTY;}
+async function counties(forMap){if(!CTY)CTY=fj(CB+'data/counties.geojson',forMap);return CTY;}
 async function countyAt(lat,lon){const G=await counties();for(const f of G.features){const b=f.properties.bbox;if(lon<b[0]-.01||lon>b[2]+.01||lat<b[1]-.01||lat>b[3]+.01)continue;if(inPoly(lon,lat,f.geometry))return f.properties.code;}return null;}
 function villAt(C,lat,lon){for(const f of C.vill.features){if(!f.properties.v)continue;if(inPoly(lon,lat,f.geometry))return f.properties;}return null;}
 
@@ -470,8 +475,8 @@ async function mapShow(C,A){
   cur=C;await loadVill(C);drawCounty(false);
   pinLayer.clearLayers();
   const vf=C.vill.features.find(f=>f.properties.t===A.dist&&f.properties.v===(A.K||'').split('|')[1]);
-  if(A.hit&&A.hit.lat)L.marker([A.hit.lat,A.hit.lng]).addTo(pinLayer).bindTooltip('門牌位置');
-  else if(A.geo)L.marker([A.geo.lat,A.geo.lon]).addTo(pinLayer).bindTooltip('線上定位位置');
+  if(A.hit&&A.hit.lat)L.marker([A.hit.lat,A.hit.lng],{icon:L.divIcon({className:'',html:'<div class="pinicon">📍</div>',iconSize:[30,30],iconAnchor:[15,28]}),zIndexOffset:2000}).addTo(pinLayer).bindTooltip('門牌位置');
+  else if(A.geo)L.marker([A.geo.lat,A.geo.lon],{icon:L.divIcon({className:'',html:'<div class="pinicon">📍</div>',iconSize:[30,30],iconAnchor:[15,28]}),zIndexOffset:2000}).addTo(pinLayer).bindTooltip('線上定位位置');
   for(const id of (A.ids||[])){const s=C.sBy[id];if(s&&s.lat!=null)L.circleMarker([s.lat,s.lon],{radius:8,color:'#fff',weight:2,fillColor:'#F36B21',fillOpacity:1}).addTo(pinLayer).bindTooltip(sName(C,id),{permanent:true,direction:'top',offset:[0,-6]});}
   if(vf){const g=L.geoJSON(vf,{style:{color:'#F36B21',weight:3,fill:false}}).addTo(pinLayer);const b=g.getBounds();for(const l of pinLayer.getLayers())if(l.getLatLng)b.extend(l.getLatLng());map.fitBounds(b,{padding:[30,30],maxZoom:16});}
   else if(A.geo)map.setView([A.geo.lat,A.geo.lon],15);
