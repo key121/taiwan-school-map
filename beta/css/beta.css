@@ -76,3 +76,15 @@ table.cov td .badge{white-space:nowrap}
   header.site nav a,.pill-line{font-size:12px;padding:5px 10px}
   header.site nav .pill-line{margin-left:auto}
 }
+
+/* 社區名稱自動完成、社區結果 */
+#qform{position:relative}
+.qsug{position:absolute;left:0;right:0;z-index:1200;background:#fff;border:1px solid #d9cfa9;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);margin-top:4px;max-height:60vh;overflow:auto}
+.qsug.hidden{display:none}
+.qsug button{display:block;width:100%;text-align:left;border:0;background:none;padding:11px 14px;font-size:16px;color:#10243D;border-bottom:1px solid #f0ead6;cursor:pointer}
+.qsug button:last-child{border-bottom:0}
+.qsug button:hover,.qsug button.on{background:#fbf6e6}
+.qsug small{color:#777;margin-left:6px;font-size:13px}
+.commGrp{border:1px solid #e6dfc6;border-radius:10px;padding:8px 10px;margin:8px 0;background:#fffdf6}
+.commGrp .cg-lab{font-weight:600;font-size:14px;margin-bottom:4px;line-height:1.5}
+.flag.ok{background:#eaf6ee;border-color:#9fd3b0}

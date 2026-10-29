@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../vendor/leaflet.css">
 <link rel="preload" href="../assets/dmserif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css?v=3">
-<link rel="stylesheet" href="css/beta.css?v=1">
+<link rel="stylesheet" href="css/beta.css?v=2">
 <meta name="theme-color" content="#10243D">
 <meta name="author" content="劉展麟（中信房屋 冠軍商仲）">
 </head>
@@ -35,13 +35,14 @@
     <form id="qform" autocomplete="off" role="search">
       <label class="s-lab" for="q">輸入戶籍或房屋地址</label>
       <div class="s-row">
-        <input id="q" type="search" placeholder="縣市＋區＋路街＋門牌號" enterkeyhint="search" aria-describedby="qHint">
+        <input id="q" type="search" placeholder="門牌地址或社區名稱" enterkeyhint="search" aria-describedby="qHint">
         <button class="btn s-go" type="submit">查學區</button>
       </div>
+      <div id="qSug" class="qsug hidden" role="listbox" aria-label="社區名稱建議"></div>
       <div class="s-opts">
         <label for="county" class="s-small">縣市</label>
         <select id="county" aria-label="縣市（可不選，系統會自動判斷）"><option value="">自動判斷</option></select>
-        <span id="qHint" class="s-small">縣市、區可省略；也可輸入「區＋里＋鄰」。全形數字、台／臺、之／-、樓／F 皆可。</span>
+        <span id="qHint" class="s-small">可輸入門牌、社區名稱（基隆市）或「區＋里＋鄰」；縣市、區可省略。</span>
       </div>
     </form>
   </div>
@@ -56,6 +57,7 @@
         <li>輸入完整門牌地址，按「查學區」。</li>
         <li>系統先用門牌資料比對出<b>里、鄰</b>，再查官方學區表。</li>
         <li>查不到門牌時才改用線上定位推估里別，並會清楚標示。</li>
+        <li>也可以只輸入路名門牌（如「孝東路108號」）或社區名稱（如「微笑台北」，目前限基隆市）。</li>
       </ol>
       <div class="small">本站不保存查詢內容。門牌比對在你的瀏覽器內完成，只會下載該區的門牌分片。</div>
     </div>
@@ -98,6 +100,6 @@
 <div id="toast"></div>
 <script src="../vendor/leaflet.js"></script>
 <script src="js/norm.js?v=1"></script>
-<script src="js/beta.js?v=1"></script>
+<script src="js/beta.js?v=2"></script>
 </body>
 </html>
