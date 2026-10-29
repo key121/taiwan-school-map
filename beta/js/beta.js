@@ -339,9 +339,10 @@ function sfHtml(C,ids){const F=C.zones&&C.zones.sf;if(!F)return '';const out=[];
 function notesHtml(C,ids){const Nn=C.zones&&C.zones.school_notes;if(!Nn)return '';return ids.filter(id=>Nn[id]).map(id=>'<div class="o"><b>'+esc(sName(C,id))+' 備註</b>：'+esc(Nn[id])+'</div>').join('');}
 function lvBlock(C,K,l,lin){
   const segs=segsOf(C,K,l);
-  if(!segs.length)return {html:'<div class="lvans"><div class="k">'+LVN[l]+'</div><div class="v"><span class="alt">表列未涵蓋此里</span></div></div>',need:false,ids:[]};
+  const part=C.reg&&C.reg.status==='partial';
+  if(!segs.length)return {html:'<div class="lvans"><div class="k">'+LVN[l]+'</div><div class="v"><span class="alt">'+(part?'無法判定：本站尚未收錄此里的學區公告':'表列未涵蓋此里')+'</span></div>'+(part?'<div class="o">'+esc(C.reg.name)+'目前只收錄部分學校的官方公告，此里不在其中；本站不推測，請看官方公告或洽學校。</div>':'')+'</div>',need:false,ids:[]};
   let use=segs;
-  if(lin!=null){use=segs.filter(x=>lin>=x.a&&lin<=x.b);if(!use.length)return {html:'<div class="lvans"><div class="k">'+LVN[l]+'</div><div class="v"><span class="alt">第'+lin+'鄰不在表列範圍</span></div><div class="o">'+rangesHtml(C,K,l)+'</div></div>',need:false,ids:[]};}
+  if(lin!=null){use=segs.filter(x=>lin>=x.a&&lin<=x.b);if(!use.length)return {html:'<div class="lvans"><div class="k">'+LVN[l]+'</div><div class="v"><span class="alt">第'+lin+'鄰不在表列範圍'+(part?'（無法判定）':'')+'</span></div><div class="o">'+(part?'此鄰可能屬於本站未收錄的學校；本站不推測。':'')+rangesHtml(C,K,l)+'</div></div>',need:false,ids:[]};}
   const sigs=new Set(use.map(sig));
   if(sigs.size>1)return {html:'<div class="lvans"><div class="k">'+LVN[l]+'</div><div class="v"><span class="alt">依鄰別而不同</span></div><div class="o">'+rangesHtml(C,K,l)+'</div></div>',need:true,ids:[]};
   const x=use[0];const ids=x.s.slice();const pids=(x.p||[]).filter(id=>!ids.includes(id));
@@ -371,7 +372,7 @@ async function answer(C,A){
     if(alt)K=alt;
     else if(alt2&&alt2.length===1){K=alt2[0];flags.push('門牌資料寫「'+esc(A.vill)+'」、學區表寫「'+esc(K.split('|')[1])+'」，用字不同，已視為同一村里；請以戶口名簿核對。');}
     else if(Z.meta.old2new&&Z.meta.old2new[K]){flags.push('「'+A.vill+'」已於 115.7.1 調整為 '+Z.meta.old2new[K].map(k=>k.split('|')[1]).join('、')+'，請以新里名與新鄰別查詢（見戶口名簿）。');}
-    else flags.push('學區表中找不到「'+A.dist+A.vill+'」。里名可能已調整或門牌資料用字不同，請以戶口名簿核對並看官方公告。');
+    else if(r.status!=='partial')flags.push('學區表中找不到「'+A.dist+A.vill+'」。里名可能已調整或門牌資料用字不同，請以戶口名簿核對並看官方公告。');
   }
   if(!A.dist&&A.vill)flags.push('同名的里不只一個，請在里名前加上區名。');
   const lin=A.lin!=null?A.lin:null;

@@ -31,7 +31,7 @@ REG=J(os.path.join(R,'data/registry.json')); REGBY={r['code']:r for r in REG}
 NAME2CODE={r['name']:r['code'] for r in REG}
 OURS_LIVE=['10017','63000','65000','10018','10020']            # already in data/c/*/zones.json
 OURS_NEW={'66000':'臺中市','67000':'臺南市','64000':'高雄市','10015':'花蓮縣'}   # /workspace/county-data
-RISK={'10002':'宜蘭資料的來源頁是 2018 年宜蘭縣教網部落格頁（標題為108學年度），檔案標示為115學年度（府教學字第1140220776號），尚未在縣府官網直接核對；請以宜蘭縣政府教育處公告為準。'}
+RISK={'10002':'宜蘭縣學區依115學年度正式修正版學區附件（宜蘭縣政府114年12月29日府教學字第1140220776號）整理；門牌、單雙號、道路等特殊條件只列待確認。宜蘭尚無可公開再散布的全縣門牌資料，地址以線上定位推估里別，請以戶口名簿之里鄰為準。'}
 PARTIAL={'10010':'嘉義縣','09020':'金門縣','09007':'連江縣'}   # 苗栗 left PARTIAL 2026-10-29: Codex now has the full 151-school current table
 RISK['10005']='苗栗縣資料為教育處現行動態查詢表（149列＋2個跨市選項，共151校）；115年公函指定此查詢，但原表未標學年度。門牌／地名特殊條件只列候選，請以教育處學區查詢為準。'
 cov=J(os.path.join(CX,'coverage.json'))
@@ -298,8 +298,12 @@ for r in REG:
         src={'name':'內政部戶政司 門牌（本站基隆專版逐筆驗證）','version':'2026-08','url':'https://www.ris.gov.tw/'}
     elif man:
         def it():
-            for d,sh in man['shards'].items():
-                for row in J_gz(os.path.join(CX,sh['file'])): yield row
+            sh_=man['shards']
+            if isinstance(sh_,list):   # 嘉義縣 style: shard i of the list -> addresses-{i}.json.gz next to the manifest
+                files=[os.path.join(os.path.dirname(mp),f'addresses-{i}.json.gz') for i in range(len(sh_))]
+            else: files=[sh['file'] for sh in sh_.values()]
+            for f in files:
+                for row in J_gz(os.path.join(CX,f)): yield row
         def J_gz(p): return json.load(gzip.open(p))['rows']
         by,cnt,unknown,addr_lin=build_addr(code,city,it(),G,None)
         src={'name':'門牌與里鄰開放資料（Codex 整理）','version':str(man.get('version')),'updated':man.get('updated'),'url':man.get('sourceUrl')}
@@ -323,7 +327,7 @@ for r in REG:
         for key,lvs in cx.items():
             v[key]={lv:segs_from(d,Lm[key]) for lv,d in lvs.items()}
         z=codex_zones(code)
-        Z={'meta':{'county':city,'years':str(z.get('year') or ''),'title':city+(str(z.get('year'))+'學年度' if z.get('year') else '')+'國民中小學學區（Codex 由官方公告整理）',
+        Z={'meta':{'county':city,'years':str(z.get('year') or ''),'title':city+(str(z.get('year'))+'學年度' if z.get('year') else '')+'國民中小學學區'+('（'+z['sourceDocumentNumber']+'正式修正版，Codex 由官方附件整理）' if z.get('sourceDocumentNumber') else '（Codex 由官方公告整理）'),
                    'source_page':z.get('sourceUrl'),'source_files':[s if isinstance(s,str) else (s.get('url') or s.get('title') or '') for s in (z.get('sources') or [])][:8],
                    'publisher':city+'政府教育局（處）','method':'由 Codex 整理之官方學區規則轉入（tools/import_codex.py）；條件式規則保留原文、不拆分。',
                    'notes':[str(x) for x in (z.get('limitations') or z.get('notes') or [])][:6] if isinstance(z.get('limitations') or z.get('notes'),list) else [str(z.get('limitations') or z.get('notes') or '')],
@@ -384,9 +388,12 @@ for r in REG:
        'addr':ainfo and {k:ainfo[k] for k in ('keys','name','version','updated','url','gzBytes') if k in ainfo},
        'incomplete':(Z or {}).get('meta',{}).get('incomplete') or [],'cross':r.get('cross'),'warning':RISK.get(code),'villages':len(G),'zoneVillages':len((Z or {}).get('v',{}))}
     if code in PARTIAL:
-        e['partialNote']={'10010':'僅收錄 11 校 115 學年度官方公告（太保國中、祥和國小、義竹國小、下楫國小、大同國小、南新國小、福樂國小、圓崇國小、永慶高中國中部、朴子國中、大吉國中），非全縣；查不到的學校不代表不屬該學區，請看官方公告。',
-                          '09020':'僅有門牌→里鄰索引，尚無學區規則；學區請看官方公告。',
-                          '09007':'尚無資料；請看官方公告。'}[code]
+        if code=='10010':
+            nm=[x['name'] for x in (cxz.get('schools') or [])]
+            e['partialNote']=f'僅收錄 {len(nm)} 校官方公告（'+'、'.join(nm)+'），非全縣完整學區表；門牌落在未收錄學校的里時，本站會直接標示「無法判定」，請看官方公告或洽學校。'
+        else:
+            e['partialNote']={'09020':'僅有門牌→里鄰索引，尚無學區規則；學區請看官方公告。','09007':'尚無資料；請看官方公告。'}[code]
+    if code=='10002': e['officialNotice']=e['official']   # classic link was the 2018 blog; 115 table supersedes it
     registry.append(e)
     SUM[code]={'name':city,'status':status,'origin':origin,'zoneVillages':e['zoneVillages'],'geoVillages':len(G),
                'addr':ainfo and {k:ainfo[k] for k in ('keys','rows','gzBytes','roadsBytes','maxShardBytes','ambiguous','unknownVillageRows','counts')},
