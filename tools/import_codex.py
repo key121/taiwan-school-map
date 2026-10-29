@@ -32,7 +32,8 @@ NAME2CODE={r['name']:r['code'] for r in REG}
 OURS_LIVE=['10017','63000','65000','10018','10020']            # already in data/c/*/zones.json
 OURS_NEW={'66000':'臺中市','67000':'臺南市','64000':'高雄市','10015':'花蓮縣'}   # /workspace/county-data
 RISK={'10002':'宜蘭資料的來源頁是 2018 年宜蘭縣教網部落格頁（標題為108學年度），檔案標示為115學年度（府教學字第1140220776號），尚未在縣府官網直接核對；請以宜蘭縣政府教育處公告為準。'}
-PARTIAL={'10010':'嘉義縣','10005':'苗栗縣','09020':'金門縣','09007':'連江縣'}
+PARTIAL={'10010':'嘉義縣','09020':'金門縣','09007':'連江縣'}   # 苗栗 left PARTIAL 2026-10-29: Codex now has the full 151-school current table
+RISK['10005']='苗栗縣資料為教育處現行動態查詢表（149列＋2個跨市選項，共151校）；115年公函指定此查詢，但原表未標學年度。門牌／地名特殊條件只列候選，請以教育處學區查詢為準。'
 cov=J(os.path.join(CX,'coverage.json'))
 CXR={}
 for r in cov['regions']:
@@ -210,13 +211,18 @@ def keelung_rows():
                 for rec in lst:
                     num=rec[0].replace('-','之'); t,v=vn[rec[1]]
                     yield (d+st+(lane+'巷' if lane else '')+(alley+'弄' if alley else '')+num+'號', v, d, rec[2], rec[4], rec[3])
+RVR={}   # review reason -> 1-based index (per county; reset in write_addr's caller)
 def build_addr(code,city,rows_iter,G,meta_src):
+    RVR.clear()
     gcanon={}
     for k in G: t,v=k.split('|'); gcanon[canon(t)+'|'+canon(v)]=k
     PL=None; resolved={}; ncity=norm(city)
     by=collections.defaultdict(dict); cnt=collections.Counter(); unknown=collections.Counter(); maxlin={}
-    for addr,vill,dist,lin,lat,lng in rows_iter:
+    for addr,vill,dist,lin,lat,lng,*ex in rows_iter:
         if not addr or lin is None: cnt['skip']+=1; continue
+        rv=None   # Codex optionalBoundaryProvenance: official row flagged for review -> keep, but UI must warn
+        if ex and isinstance(ex[0],dict) and ex[0].get('requiresReview'):
+            rv=RVR.setdefault(ex[0].get('reviewReason') or '官方資料標記需核對',len(RVR)+1); cnt['requires_review']+=1
         a=norm(addr)
         if a.startswith(ncity): a=a[len(ncity):]
         if a.startswith(norm(dist)): rest=a[len(norm(dist)):]
@@ -241,11 +247,11 @@ def build_addr(code,city,rows_iter,G,meta_src):
                 else:
                     cnt['dropped_unresolved_village']+=1; unknown[dist+'|'+vill+' →丟棄']+=1; continue
         vname=key.split('|')[1]
-        rec=[vname,int(lin),round(lat,5) if lat else None,round(lng,5) if lng else None]+([orig] if orig else [])
+        rec=[vname,int(lin),round(lat,5) if lat else None,round(lng,5) if lng else None]+([orig] if orig or rv else [])+([rv] if rv else [])
         cur=by[dist].get(k)
         if cur is None: by[dist][k]=[rec]
         elif all((c[0],c[1])!=(rec[0],rec[1]) for c in cur): cur.append(rec)
-        if not orig: maxlin[key]=max(maxlin.get(key,0),int(lin))
+        if not orig and not rv: maxlin[key]=max(maxlin.get(key,0),int(lin))
         cnt['rows']+=1
     return by,cnt,unknown,maxlin
 SHARD_MAX=180_000   # gz bytes; bigger districts are split by road hash (same hash in beta/js)
@@ -271,7 +277,9 @@ def write_addr(code,by,src):
         for key,val in k.items(): parts[rhash(road_of(key),nb)][key]=val
         sizes=[]
         for b,part in enumerate(parts):
-            sz=W(os.path.join(base,f'{i}_{b}.json.gz'),{'d':d,'v':vl,'k':part},gz=True); sizes.append(sz); total+=sz; biggest=max(biggest,sz)
+            sh={'d':d,'v':vl,'k':part}
+            if RVR: sh['r']=[t for t,_ in sorted(RVR.items(),key=lambda x:x[1])]
+            sz=W(os.path.join(base,f'{i}_{b}.json.gz'),sh,gz=True); sizes.append(sz); total+=sz; biggest=max(biggest,sz)
         files[d]={'i':i,'nb':nb,'keys':len(k),'bytes':sizes}
     rz=W(os.path.join(base,'roads.json.gz'),{r:sorted(v) for r,v in roads.items()},gz=True)
     W(os.path.join(base,'meta.json'),{'d':dists,'f':files,'src':src,'roadsBytes':rz})
@@ -376,8 +384,7 @@ for r in REG:
        'addr':ainfo and {k:ainfo[k] for k in ('keys','name','version','updated','url','gzBytes') if k in ainfo},
        'incomplete':(Z or {}).get('meta',{}).get('incomplete') or [],'cross':r.get('cross'),'warning':RISK.get(code),'villages':len(G),'zoneVillages':len((Z or {}).get('v',{}))}
     if code in PARTIAL:
-        e['partialNote']={'10010':'僅收錄太保國中、祥和國小兩校 115 學年度官方資料，其餘學校請看官方公告。',
-                          '10005':'僅收錄部分國中（縣府動態表第7頁）與少數國小，非全縣完整資料。',
+        e['partialNote']={'10010':'僅收錄 11 校 115 學年度官方公告（太保國中、祥和國小、義竹國小、下楫國小、大同國小、南新國小、福樂國小、圓崇國小、永慶高中國中部、朴子國中、大吉國中），非全縣；查不到的學校不代表不屬該學區，請看官方公告。',
                           '09020':'僅有門牌→里鄰索引，尚無學區規則；學區請看官方公告。',
                           '09007':'尚無資料；請看官方公告。'}[code]
     registry.append(e)

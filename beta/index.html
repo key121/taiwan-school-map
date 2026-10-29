@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../vendor/leaflet.css">
 <link rel="preload" href="../assets/dmserif-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/style.css?v=3">
-<link rel="stylesheet" href="css/beta.css?v=2">
+<link rel="stylesheet" href="css/beta.css?v=3">
 <meta name="theme-color" content="#10243D">
 <meta name="author" content="劉展麟（中信房屋 冠軍商仲）">
 </head>
@@ -42,7 +42,7 @@
       <div class="s-opts">
         <label for="county" class="s-small">縣市</label>
         <select id="county" aria-label="縣市（可不選，系統會自動判斷）"><option value="">自動判斷</option></select>
-        <span id="qHint" class="s-small">可輸入門牌、社區名稱（基隆市）或「區＋里＋鄰」；縣市、區可省略。</span>
+        <span id="qHint" class="s-small">可輸入門牌、社區名稱（基隆、臺北、新北）或「區＋里＋鄰」；縣市、區可省略。</span>
       </div>
     </form>
   </div>
@@ -57,7 +57,7 @@
         <li>輸入完整門牌地址，按「查學區」。</li>
         <li>系統先用門牌資料比對出<b>里、鄰</b>，再查官方學區表。</li>
         <li>查不到門牌時才改用線上定位推估里別，並會清楚標示。</li>
-        <li>也可以只輸入路名門牌（如「孝東路108號」）或社區名稱（如「微笑台北」，目前限基隆市）。</li>
+        <li>也可以只輸入路名門牌（如「孝東路108號」）或社區名稱（如「微笑台北」，目前限基隆、臺北、新北）。</li>
       </ol>
       <div class="small">本站不保存查詢內容。門牌比對在你的瀏覽器內完成，只會下載該區的門牌分片。</div>
     </div>
@@ -99,7 +99,7 @@
 </footer>
 <div id="toast"></div>
 <script src="../vendor/leaflet.js"></script>
-<script src="js/norm.js?v=1"></script>
-<script src="js/beta.js?v=2"></script>
+<script src="js/norm.js?v=2"></script>
+<script src="js/beta.js?v=3"></script>
 </body>
 </html>

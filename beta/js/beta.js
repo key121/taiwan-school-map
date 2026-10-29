@@ -32,11 +32,11 @@ async function boot(){
   $('#qform').addEventListener('submit',e=>{e.preventDefault();run($('#q').value,$('#county').value||null);});
   document.querySelectorAll('.lvtoggle button').forEach(b=>b.addEventListener('click',()=>{lv=b.dataset.lv;document.querySelectorAll('.lvtoggle button').forEach(x=>x.classList.toggle('on',x===b));if(cur&&villLayer)drawCounty(false);legend();}));
   lazyMap();
-  // 社區名稱自動完成：輸入兩個字以上、且沒有門牌號碼時才下載社區索引（約 30KB）
+  // 社區名稱自動完成：輸入兩個字以上、且沒有門牌號碼時才下載社區索引（分縣市檔）
   const q=$('#q'),box=$('#qSug');let tmr=null,seq=0;
   const hide=()=>{box.classList.add('hidden');box.innerHTML='';};
   q.addEventListener('input',()=>{clearTimeout(tmr);const v=q.value.trim();if(v.length<2||/\d/.test(v)){hide();return;}
-    tmr=setTimeout(async()=>{const my=++seq;const L=await commFind(v,8).catch(()=>[]);if(my!==seq)return;if(!L.length||q.value.trim()!==v){hide();return;}
+    tmr=setTimeout(async()=>{const my=++seq;const L=await commFind(v,8,$('#county').value||null).catch(()=>[]);if(my!==seq)return;if(!L.length||q.value.trim()!==v){hide();return;}
       box.innerHTML=L.map(([,c])=>'<button type="button" role="option" data-n="'+esc(c.n)+'">'+esc(c.n)+'<small>'+esc(REGBY[c.code].name+c.d)+'・社區</small></button>').join('');box.classList.remove('hidden');
       box.querySelectorAll('button').forEach(b=>b.addEventListener('mousedown',e=>e.preventDefault()));
       box.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{q.value=b.dataset.n;hide();run(b.dataset.n,$('#county').value||null);}));},150);});
@@ -101,17 +101,29 @@ async function shard(code,dist,road){
 async function roads(code){if(!roadsC[code])roadsC[code]=fgz('data/a/'+code+'/roads.json.gz');return roadsC[code];}
 
 /* ---------- 全台路名索引（沒寫縣市、區時用；每次只下載一個約 24KB 的分片） ---------- */
-const rbC={};let NAMES=null,COMM=null;
+const rbC={};let NAMES=null,NEXT_NOTE=null;
 async function roadBucket(road){const b=N.rhash(road,8);if(!rbC[b])rbC[b]=fgz('data/r/'+b+'.json.gz');return rbC[b];}
 async function roadLocs(road){const B=await roadBucket(road);return {locs:(B[road]||[]).map(x=>{const [code,i]=x.split('.');return {code,i:+i};}),sug:B['~'+road]||[]};}
 async function roadNames(){if(!NAMES)NAMES=fgz('data/r/names.json.gz');return NAMES;}
 const noAddr=()=>REG.counties.filter(r=>!r.addr).map(r=>r.name);
 
-/* ---------- 社區名稱索引（目前：基隆市） ---------- */
-const COMM_CODES=['10017'];
-async function comm(){
-  if(!COMM)COMM=Promise.all(COMM_CODES.map(c=>fj('data/comm/'+c+'.json').then(j=>(j.code=c,j)))).then(L=>{const all=[];for(const j of L)for(const c of j.c){c.code=j.code;c.keys=[c.n].concat(c.a||[]).map(cnorm).filter(Boolean);all.push(c);}return {list:all,src:L};});
-  return COMM;
+/* ---------- 社區名稱索引（基隆市：實價登錄社區＋報備門牌範圍；臺北市、新北市：管委會報備名稱＋登記門牌） ---------- */
+const COMM_CODES=['10017','63000','65000'];
+// 每個縣市分檔、用到才下載（基隆約 30KB、臺北約 280KB、新北約 260KB gzip）；已知縣市時只載該縣市
+const COMMF={};
+function commFile(code){
+  if(!COMMF[code])COMMF[code]=fj('data/comm/'+code+'.json').then(j=>{j.code=code;for(const c of j.c){c.code=code;c.kind=j.kind||'range';c.keys=[c.n].concat(c.a||[]).map(cnorm).filter(Boolean);}return j;});
+  return COMMF[code];
+}
+function commCodes(q,forced){
+  if(forced)return COMM_CODES.includes(forced)?[forced]:[];
+  const s=String(q||'').normalize('NFKC').replace(/台/g,'臺').replace(/^(臺灣省?)?/,'');
+  for(const r of (REG?REG.counties:[]))if(s.startsWith(r.name))return COMM_CODES.includes(r.code)?[r.code]:[];
+  return COMM_CODES;
+}
+async function comm(codes){
+  const L=await Promise.all((codes||COMM_CODES).map(commFile));
+  return {list:[].concat(...L.map(j=>j.c)),src:L};
 }
 const SUFX=/(管理委員會|管委會|社區|大樓|大廈|華廈|公寓|住宅|新城)$/;
 function cnorm(s){
@@ -122,9 +134,10 @@ function cnorm(s){
   for(let i=0;i<2;i++){const t=s.replace(SUFX,'');if(t.length>=2)s=t;}
   return s;
 }
-async function commFind(q,max){
+async function commFind(q,max,forced){
   const qn=cnorm(q);if(qn.length<2)return [];
-  const {list}=await comm();const out=[];
+  const codes=commCodes(q,forced);if(!codes.length)return [];
+  const {list}=await comm(codes);const out=[];
   for(const c of list){let sc=0;for(const k of c.keys){const v=k===qn?3:k.startsWith(qn)?2:k.includes(qn)?1:(qn.length>=3&&qn.includes(k)&&k.length>=2)?0.5:0;if(v>sc)sc=v;}if(sc)out.push([sc,c]);}
   out.sort((a,b)=>b[0]-a[0]||a[1].n.length-b[1].n.length);
   return out.slice(0,max||50);
@@ -138,7 +151,7 @@ async function lookupIn(code,dist,key){
   if(key.includes('臨'))tries.push([key.replace(/臨(?=\d+(之\d+)?(附\d+)?號$)/,''),null]);
   if(/附\d+號$/.test(key))tries.push([key.replace(/附\d+號$/,'號'),'無「附號」門牌，以主號比對']);
   const mm=key.match(/^(.*?\d+)之\d+(附\d+)?號$/);if(mm)tries.push([mm[1]+'號','無此「之號」門牌，以主號 '+mm[1].match(/\d+$/)[0]+' 號比對']);
-  for(const [k,note] of tries){const x=S.k[k];if(x)return {dist,key:k,note,hits:recs(x).map(r=>({vill:S.v[r[0]],lin:r[1],lat:r[2],lng:r[3],orig:r[4]||null}))};}
+  for(const [k,note] of tries){const x=S.k[k];if(x)return {dist,key:k,note,hits:recs(x).map(r=>({vill:S.v[r[0]],lin:r[1],lat:r[2],lng:r[3],orig:r[4]||null,rv:r[5]?((S.r&&S.r[r[5]-1])||'官方資料標記需核對'):null}))};}
   return {dist,miss:true};
 }
 async function lookup(code,dist,key){
@@ -168,7 +181,7 @@ function villAt(C,lat,lon){for(const f of C.vill.features){if(!f.properties.v)co
 async function run(q,forced,presetLin){
   q=(q||'').trim();if(!q)return;
   STATS.bytes=0;STATS.files=[];STATS.mapBytes=0;STATS.mapFiles=[];
-  const P=parse(q,forced);
+  const P=parse(q,forced);P.commNote=NEXT_NOTE;NEXT_NOTE=null;
   show('<div class="small">查詢中…</div>');
   try{await resolve(P,presetLin);}catch(e){console.error(e);show('<div class="flag bad">查詢時發生錯誤：'+esc(e.message)+'</div>');}
   window.__betaStats=STATS;
@@ -205,7 +218,7 @@ async function resolve(P,presetLin){
   if(key&&!P.code)return roadOnly(P,key,presetLin);
 
   if(P.code&&P.villMaybe){const C=await loadCounty(P.code);return answer(C,{dist:P.dist||guessDist(C,P.villMaybe),vill:P.villMaybe,lin:P.lin,how:'user',P});}
-  show('<div class="flag">'+(P.commMiss?'找不到名為「'+esc(P.raw)+'」的社區（社區名稱目前只收錄基隆市）。<br>':'')+'請輸入下列任一種：<br>・門牌地址，例如「<b>基隆市信義區孝東路108號</b>」<br>・社區名稱，例如「<b>微笑台北</b>」<br>・戶口名簿上的「區＋里＋鄰」，例如「<b>信義區孝深里24鄰</b>」</div>');
+  show('<div class="flag">'+(P.commMiss?'找不到名為「'+esc(P.raw)+'」的社區（社區名稱目前收錄基隆市、臺北市、新北市）。<br>':'')+'請輸入下列任一種：<br>・門牌地址，例如「<b>基隆市信義區孝東路108號</b>」<br>・社區名稱，例如「<b>微笑台北</b>」<br>・戶口名簿上的「區＋里＋鄰」，例如「<b>信義區孝深里24鄰</b>」</div>');
 }
 /* 沒寫縣市也沒寫區：全台路名索引 → 精確門牌；同名路列候選，不自動猜 */
 async function roadOnly(P,key,presetLin){
@@ -244,17 +257,18 @@ async function roadOnly(P,key,presetLin){
 }
 /* 社區名稱 → 門牌 → 里鄰 → 學區；不同棟分屬不同學區時逐一列出 */
 async function commSearch(P){
-  const q=P.raw;let hits=await commFind(q);
+  const q=P.raw;let hits=await commFind(q,50,P.forced||P.typedCode||null);
   if(/[里村]$/.test(cnorm(q)))hits=hits.filter(h=>h[0]===3);   // 像里名的輸入只接受完全相同的社區名
   if(!hits.length){P.commMiss=!P.villMaybe&&!/\d/.test(q);return false;}
   const exact=hits.filter(h=>h[0]===3);
-  if(exact.length===1)return commAnswer(exact[0][1],P,hits.filter(h=>h[0]<3).slice(0,6).map(h=>h[1])),true;
+  if(exact.length===1){await commAnswer(exact[0][1],P,hits.filter(h=>h[0]<3).slice(0,6).map(h=>h[1]));return true;}
   const L=(exact.length?exact:hits).slice(0,12);
-  if(L.length===1)return commAnswer(L[0][1],P,[]),true;
+  if(L.length===1){await commAnswer(L[0][1],P,[]);return true;}
   choose('有 '+(exact.length||hits.length)+' 個社區名稱符合「'+q+'」，請選：',L.map(([,c])=>[c.n+'（'+REGBY[c.code].name+c.d+'）',()=>{$('#q').value=c.n;commAnswer(c,Object.assign({},P,{raw:c.n}),[]);}]));
   return true;
 }
 async function commAnswer(c,P,others){
+  if(!c.g.length&&c.q){NEXT_NOTE='「'+c.n+'」的管委會登記地址（'+c.q+'）不在門牌索引，以下改用這個地址查詢；同社區其他棟可能不同里鄰，請以你家實際門牌確認。';$('#q').value=REGBY[c.code].name+c.q.replace(REGBY[c.code].name,'');return run($('#q').value,c.code);}
   const C=await loadCounty(c.code);const name=REGBY[c.code].name;
   const groups=[];const bySig=new Map();
   for(const g of c.g){
@@ -265,7 +279,7 @@ async function commAnswer(c,P,others){
     bySig.get(sg).parts.push({d,v,lin,lab,n});
   }
   const otherHtml=others&&others.length?'<div class="small">其他名稱相近的社區：'+others.map(o=>'<button type="button" class="btn sm ghost commBtn" data-n="'+esc(o.n)+'">'+esc(o.n)+'</button>').join(' ')+'</div>':'';
-  const head='<div class="ans-addr">'+esc(c.n)+'<span class="o">（'+esc(name+c.d)+'）</span></div><div class="small">社區門牌：'+esc(c.t)+'</div>';
+  const head='<div class="ans-addr">'+esc(c.n)+'<span class="o">（'+esc(name+c.d)+'）</span></div><div class="small">'+(c.kind==='apm'?'管委會登記地址：':'社區門牌：')+esc(c.t)+'</div>';
   const vl=ps=>{const by={};for(const p of ps)(by[p.v]=by[p.v]||[]).push(p.lin);return Object.entries(by).map(([v,ls])=>v+[...new Set(ls)].sort((a,b)=>a-b).join('、')+'鄰').join('；');};
   let h='<div class="res">'+head;
   if(groups.length===1){
@@ -279,8 +293,8 @@ async function commAnswer(c,P,others){
       h+='<div class="commGrp"><div class="cg-lab">'+[...byLab].map(([lab,ps])=>esc(lab)+'<span class="o">（'+esc(vl(ps))+'）</span>').join('<br>')+'</div>'+G.html+'<button type="button" class="btn sm ghost cgBtn" data-q="'+esc(name+G.d+G.key)+'">用門牌「'+esc(G.key)+'」看詳細</button></div>';
     }
   }
-  h+='<div class="flag">社區門牌範圍來自管委會報備資料，可能不含全部棟別；請以你家實際門牌或戶口名簿的里鄰為準。</div>'+otherHtml;
-  h+='<div class="meta-src"><b>社區資料</b>：'+esc(((await comm()).src.find(x=>x.code===c.code)||{}).source||'')+'（'+esc((((await comm()).src.find(x=>x.code===c.code)||{}).updated||'').slice(0,10))+'）</div>'+sourceHtml(C);
+  h+='<div class="flag">'+(c.kind==='apm'?'這是管委會<b>登記的地址</b>推得的里鄰；同社區其他棟可能屬不同里鄰或學區，請改輸入你家實際門牌確認。':'社區門牌範圍來自管委會報備資料，可能不含全部棟別；請以你家實際門牌或戶口名簿的里鄰為準。')+'</div>'+otherHtml;
+  h+='<div class="meta-src"><b>社區資料</b>：'+esc(((await comm([c.code])).src.find(x=>x.code===c.code)||{}).source||'')+'（'+esc((((await comm([c.code])).src.find(x=>x.code===c.code)||{}).updated||'').slice(0,10))+'）</div>'+sourceHtml(C);
   h+='<div class="acts"><button class="btn sm ghost" id="shareBtn">複製分享連結</button></div></div>';
   show(h);
   document.querySelectorAll('#result .cgBtn').forEach(b=>b.addEventListener('click',()=>{$('#q').value=b.dataset.q;run(b.dataset.q,c.code);}));
@@ -296,7 +310,7 @@ async function geoFallback(P,key,why,presetLin){
   loading(true);
   const g=await geocode((P.code&&!P.typedCode?REGBY[P.code].name:'')+P.norm);
   loading(false);
-  if(!g)return show('<div class="flag bad"><b>找不到這個地址。</b>'+esc(why)+'，線上地圖也定位不到。</div>'+(P.sugHtml||'')+'<div class="flag">可以這樣試：<br>・檢查路名、門牌號碼，並加上縣市和區，例如「<b>基隆市信義區孝東路108號</b>」<br>・或輸入戶口名簿上的「區＋里＋鄰」，例如「<b>信義區孝深里24鄰</b>」<br>・或輸入社區名稱，例如「<b>微笑台北</b>」（目前限基隆市）</div>'+officialLinks(P.code));
+  if(!g)return show('<div class="flag bad"><b>找不到這個地址。</b>'+esc(why)+'，線上地圖也定位不到。</div>'+(P.sugHtml||'')+'<div class="flag">可以這樣試：<br>・檢查路名、門牌號碼，並加上縣市和區，例如「<b>基隆市信義區孝東路108號</b>」<br>・或輸入戶口名簿上的「區＋里＋鄰」，例如「<b>信義區孝深里24鄰</b>」<br>・或輸入社區名稱，例如「<b>微笑台北</b>」（目前限基隆、臺北、新北）</div>'+officialLinks(P.code));
   const code=await countyAt(g.lat,g.lon);
   if(!code)return show('<div class="flag bad">線上定位結果不在臺灣縣市範圍內。</div>');
   if(P.code&&code!==P.code)return show('<div class="flag bad">線上定位結果落在'+esc(REGBY[code].name)+'，與輸入的'+esc(REGBY[P.code].name)+'不符，無法判定。請確認地址。</div>');
@@ -346,19 +360,24 @@ async function answer(C,A){
   const flags=[];
   // 里名對不到：試標準化、舊名
   if(Z&&K&&!Z.v[K]){
-    const alt=Object.keys(Z.v).find(k=>k.split('|')[0]===A.dist&&N.canon(k.split('|')[1])===N.canon(A.vill));
+    const cd=N.canon(A.dist),cv=N.canon(A.vill),f2=x=>x.replace(/洲/g,'州');
+    const alt=Object.keys(Z.v).find(k=>N.canon(k.split('|')[0])===cd&&N.canon(k.split('|')[1])===cv);
+    const alt2=alt?null:Object.keys(Z.v).filter(k=>N.canon(k.split('|')[0])===cd&&f2(N.canon(k.split('|')[1]))===f2(cv));
     if(alt)K=alt;
+    else if(alt2&&alt2.length===1){K=alt2[0];flags.push('門牌資料寫「'+esc(A.vill)+'」、學區表寫「'+esc(K.split('|')[1])+'」，用字不同，已視為同一村里；請以戶口名簿核對。');}
     else if(Z.meta.old2new&&Z.meta.old2new[K]){flags.push('「'+A.vill+'」已於 115.7.1 調整為 '+Z.meta.old2new[K].map(k=>k.split('|')[1]).join('、')+'，請以新里名與新鄰別查詢（見戶口名簿）。');}
     else flags.push('學區表中找不到「'+A.dist+A.vill+'」。里名可能已調整或門牌資料用字不同，請以戶口名簿核對並看官方公告。');
   }
   if(!A.dist&&A.vill)flags.push('同名的里不只一個，請在里名前加上區名。');
   const lin=A.lin!=null?A.lin:null;
   // 旗標
+  if(A.hit&&A.hit.rv)flags.push('⚠ 官方門牌資料把這筆標為「需核對」：'+esc(A.hit.rv)+'。下方學區是依資料上的里鄰推得，<b>不能當作確認結果</b>，請向戶政事務所確認現行里鄰。');
   if(A.hit&&A.hit.orig)flags.push('門牌資料原寫「'+esc(A.hit.orig)+'」，已依座標判定為「'+esc(A.vill)+'」，請以戶口名簿核對。');
   if(Z&&Z.meta.renamed&&K&&Z.meta.renamed[K])flags.push('此里為 '+esc(Z.meta.renamed[K])+'，學區表仍使用調整前里名，鄰別已重編；'+(A.how==='geo'?'線上定位無法判定新鄰別，':'')+'請以戶口名簿之新里鄰並核對官方公告。');
   if(A.lk&&A.lk.note)flags.push(A.lk.note+'，里鄰可能不同，請核對門牌。');
   if(A.how==='door'&&A.userVill&&A.userVill!==A.vill)flags.push('你輸入的是「'+esc(A.userVill)+'」，門牌資料為「'+esc(A.vill)+'」，以門牌資料為準。');
   if(A.how==='door'&&A.userLin!=null&&A.userLin!==A.lin)flags.push('你輸入第'+A.userLin+'鄰，門牌資料為第'+A.lin+'鄰，以門牌資料為準。');
+  if(A.P&&A.P.commNote)flags.push(esc(A.P.commNote));
   if(A.P&&A.P.roadOnlyNote)flags.push(esc(A.P.roadOnlyNote)+'若不是這裡，請加上縣市和區再查。');
   if(A.P&&A.P.override)flags.push('地址寫的是'+esc(REGBY[A.P.override].name)+'，但已依你選的縣市「'+esc(r.name)+'」查詢。');
   if(r.status==='partial')flags.push('<b>部分收錄</b>：'+esc(r.partialNote||'本縣市只收錄部分學校或部分鄉鎮。')+' <a href="'+esc(r.officialNotice||r.official||'')+'" target="_blank" rel="noopener">看官方公告</a>');
