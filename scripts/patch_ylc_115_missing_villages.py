@@ -3,7 +3,7 @@
 來源：雲林縣政府「修正雲林縣115學年度國民中小學學區劃分表」附件一（表頭 115.1.19，公告 1150128）
   公告頁 https://huwei.yunlin.gov.tw/News_Content.aspx?n=20380&s=579611
   原檔 474,894 bytes，SHA-256 2f509fed3ded76ffab91a8012a5c1c5bd04e2b5b2de917809499ff829ca1010a
-  來源紀錄與逐字摘錄：raw/10009/ylc_115_zoning_20260128_SOURCE.txt（ws.yunlin.gov.tw 有 Cloudflare，CLI 抓不到原檔）
+  來源紀錄與逐字摘錄：raw/10009/ylc_115_zoning_20260128_SOURCE.txt；原檔 raw/10009/ylc_115_zoning_20260128.pdf（ws.yunlin.gov.tw 有 Cloudflare，CLI 抓不到，由 Key 2026-11-26 手動存檔）
 
 結論（data/c/10009/villages.json 392 鍵 vs zones.json 375 鍵，差 17）：
   寫入 5 里（縣內唯一村里名，只是官方表字形與圖資鍵不同；鍵名照抄圖資）：
@@ -27,6 +27,7 @@ SP = os.path.join(R, 'data/c/10009/schools.json')
 TODAY = '2026-11-26'
 PAGE = 'https://huwei.yunlin.gov.tw/News_Content.aspx?n=20380&s=579611'
 RAW = 'raw/10009/ylc_115_zoning_20260128_SOURCE.txt'
+PDF = 'raw/10009/ylc_115_zoning_20260128.pdf'  # Key 2026-11-26 手動存檔，SHA-256 與 SOURCE.txt 紀錄相同
 
 # 原文逐字（pdf.js 抽字，空白依原排版去除）
 SRC = {
@@ -129,7 +130,7 @@ print('國小鄰覆蓋為0', zero_e)
 print('既有部分鄰缺口（本 PR 未動）', partial)
 
 M = Z['meta']
-for u in (RAW,):
+for u in (PDF, RAW):
     if u not in M['source_files']: M['source_files'].append(u)
 NOTE = ('2026-11-26 對照115學年度修正版學區劃分表（115.1.19）補入5個縣內唯一但字形與圖資不同的村里：'
         '四湖鄉[萡]子村／[萡]東村（原文萡子村／萡東村）、斗六市崙峯里（原文崙峰里）、斗六市溝埧里（原文溝壩里）、水林鄉[欍]埔村（原文瓊埔村）。')
@@ -139,7 +140,7 @@ NOTE2 = ('北港鎮中和里／公舘里／大同里、斗六市中和里、斗�
 M['notes'] = [n for n in M['notes'] if not n.startswith(('2026-11-26 對照115學年度修正版', '北港鎮中和里／公舘里'))] + [NOTE, NOTE2]
 M['updated'] = TODAY
 M['check'] = {
-    'checked': TODAY, 'scope': '缺漏17里＋國小／國中鄰覆蓋為0之里（其他里未重跑）', 'source': [PAGE, RAW],
+    'checked': TODAY, 'scope': '缺漏17里＋國小／國中鄰覆蓋為0之里（其他里未重跑）', 'source': [PAGE, PDF, RAW],
     'added_villages': [p[0] for p in PATCH],
     'unlisted_same_name_no_town': missing,
     'zero_elementary_coverage': zero_e,
